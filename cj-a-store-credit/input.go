@@ -26,11 +26,8 @@ func InputChan(data []byte) chan Input {
 		var credit uint
 		var err os.Error
 
-		for i, line := range lines {
-			if i == 0 {	// ignore the total number of inputs
-				continue
-			}
-			i -= 1
+		// skip leading line with the total number of inputs
+		for i, line := range lines[1:] {
 			switch i % 3 {
 				case 0:	// credit
 					credit, err = strconv.Atoui(line)
@@ -50,7 +47,7 @@ func InputChan(data []byte) chan Input {
 							os.Exit(3)
 						}
 					}
-					input := Input{uint((i+1)/3), credit, items}
+					input := Input{uint(i/3+1), credit, items}
 					ch <- input
 			}
 		}
