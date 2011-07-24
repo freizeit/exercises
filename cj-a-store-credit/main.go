@@ -21,7 +21,9 @@ func main() {
 	}
 	inputs := InputChan(data)
 	for input := range inputs {
-		fmt.Printf("Input #%d: credit: %d, items: %w\n", input.Index,
+		fmt.Printf("Input #%d: credit: %d, items: %d\n", input.Index,
 					  input.Credit, input.Items)
+		result := FindItems(input)
+		fmt.Println(result)
 	}
 }

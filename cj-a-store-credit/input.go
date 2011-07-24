@@ -21,7 +21,7 @@ func InputChan(data []byte) chan Input {
 	go func() {
 		lines := strings.Split(strings.TrimSpace(string(data)), "\n", -1)
 		fmt.Printf("number of lines: %v\n", len(lines))
-		fmt.Printf("lines: %v\n", lines)
+		fmt.Printf("lines: %q\n", lines)
 
 		var credit uint
 		var err os.Error
