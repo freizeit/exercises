@@ -6,8 +6,8 @@ import (
 	)
 
 
-func FindItems(input Input) (result string) {
-	result = fmt.Sprintf("Case #%d: no solution found", input.Index)
+func FindItems(input Input, rch chan string) () {
+	result := fmt.Sprintf("Case #%d: no solution found", input.Index)
 	for i, a := range input.Items {
 		for j, b := range input.Items[i+1:] {
 			if a + b == input.Credit {
@@ -16,5 +16,5 @@ func FindItems(input Input) (result string) {
 			}
 		}
 	}
-	return
+	rch <- result
 }
