@@ -6,10 +6,12 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"runtime"
 	)
 
 
 var inputFileName = flag.String("f", "", "input data file")
+var numCores = flag.Int("n", 2, "number of CPU cores to use")
 
 
 func main() {
@@ -19,6 +21,8 @@ func main() {
 		fmt.Printf("can't open file; err=%s\n",  err.String())
 		os.Exit(1)
 	}
+
+	runtime.GOMAXPROCS(*numCores)
 
 	var counter int
 	inputs := InputChan(data)
