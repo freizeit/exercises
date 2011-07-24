@@ -4,7 +4,6 @@ package main
 import (
 	"flag"
 	"fmt"
-	"./input"
 	"io/ioutil"
 	"os"
 	)
@@ -20,7 +19,7 @@ func main() {
 		fmt.Printf("can't open file; err=%s\n",  err.String())
 		os.Exit(1)
 	}
-	inputs := input.InputChan(data)
+	inputs := InputChan(data)
 	for input := range inputs {
 		fmt.Printf("Input #%d: credit: %d, items: %w\n", input.Index,
 					  input.Credit, input.Items)
