@@ -23,15 +23,14 @@ func InputChan(data []byte) chan Input {
 		fmt.Printf("number of lines: %v\n", len(lines))
 		fmt.Printf("lines: %v\n", lines)
 
-		var credit, skipped uint
+		var credit uint
 		var err os.Error
 
 		for i, line := range lines {
-			if i == 0 || len(line) == 0 {	// ignore the total number of inputs
-				skipped += 1
+			if i == 0 {	// ignore the total number of inputs
 				continue
 			}
-			i -= int(skipped)
+			i -= 1
 			switch i % 3 {
 				case 0:	// credit
 					credit, err = strconv.Atoui(line)
