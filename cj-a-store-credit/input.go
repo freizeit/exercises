@@ -45,7 +45,8 @@ type Input struct {
 
 
 // Convert the raw inputs contained in the 'data' buffer to 'Input' structs
-// and write the latter to the returned channel.
+// and start a go routine for each of the latter. Return the number of
+// inputs processed as well as the channel from which to read the results.
 func ProcessInput(data []byte) (int, chan string) {
 	count := 0
 	rchan := make(chan string)
