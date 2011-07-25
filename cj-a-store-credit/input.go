@@ -1,5 +1,5 @@
 /*
-	Process the input data sets for
+	Processes the input data sets for
 
 		http://code.google.com/codejam/contest/dashboard?c=351101#s=p0
 
