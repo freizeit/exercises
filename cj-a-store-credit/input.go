@@ -49,7 +49,7 @@ type Input struct {
 // inputs processed as well as the channel from which to read the results.
 func ProcessInput(data []byte) (int, chan string) {
 	count := 0
-	rchan := make(chan string, 1000)
+	rchan := make(chan string, 10000)
 
 	lines := strings.Split(strings.TrimSpace(string(data)), "\n", -1)
 	//fmt.Printf("number of lines: %v\n", len(lines))
