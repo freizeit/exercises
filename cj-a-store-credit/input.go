@@ -1,3 +1,31 @@
+/*
+	Process the input data sets for
+
+		http://code.google.com/codejam/contest/dashboard?c=351101#s=p0
+
+	Problem
+
+	You receive a credit C at a local store and would like to buy two items.
+	You first walk through the store and create a list L of all available
+	items. From this list you would like to buy two items that add up to the
+	entire value of the credit. The solution you provide will consist of the
+	two integers indicating the positions of the items in your list (smaller
+	number first).
+
+	Input
+
+	The first line of input gives the number of cases, N. N test cases
+	follow. For each test case there will be:
+
+		 - one line containing the value C, the amount of credit you have at
+			the store.
+		 - one line containing the value I, the number of items in the store.
+		 - one line containing a space separated list of I integers. Each
+			integer P indicates the price of an item in the store.
+		 - each test case will have exactly one solution.
+*/
+
+
 package main
 
 
@@ -16,8 +44,11 @@ type Input struct {
 }
 
 
+// Convert the raw inputs contained in the 'data' buffer to 'Input' structs
+// and write the latter to the returned channel.
 func InputChan(data []byte) chan Input {
 	ch := make(chan Input)
+
 	go func() {
 		lines := strings.Split(strings.TrimSpace(string(data)), "\n", -1)
 		//fmt.Printf("number of lines: %v\n", len(lines))
