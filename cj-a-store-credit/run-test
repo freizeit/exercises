@@ -1,0 +1,11 @@
+#!/bin/bash
+
+rm -f test-data.txt
+
+for n in 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16;
+do
+	for i in 1 2 3;
+	do
+		/usr/bin/time -o test-data.txt -a --format '"%C"  %e  %S  %U  %M' ./main -n $n -f A-100k.in>/dev/null;
+	done
+done
