@@ -45,17 +45,10 @@ func main() {
 
 	runtime.GOMAXPROCS(*numCores)
 
-	var counter int
-	inputs := InputChan(data)
-	rch := make(chan string)
-	for input := range inputs {
-		// fmt.Printf("Input #%d: credit: %d, items: %d\n", input.Index,
-		// 			  input.Credit, input.Items)
-		go FindItems(input, rch)
-		counter += 1
-	}
+	counter, rchan := ProcessInput(data)
+
 	for i := 0; i < counter; i++ {
-		result := <-rch
+		result := <-rchan
 		fmt.Println(result)
 	}
 }

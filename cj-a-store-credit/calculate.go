@@ -25,7 +25,7 @@ import (
 // This function deals with a single case. It finds the two store items
 // whose prices add up to the credit granted and writes their indices
 // (1-based) to the result channel.
-func FindItems(input Input, rch chan string) {
+func FindItems(input Input, rchan chan string) {
 	result := fmt.Sprintf("Case #%d: no solution found", input.Index)
 	for i, a := range input.Items {
 		for j, b := range input.Items[i+1:] {
@@ -35,5 +35,5 @@ func FindItems(input Input, rch chan string) {
 			}
 		}
 	}
-	rch <- result
+	rchan <- result
 }

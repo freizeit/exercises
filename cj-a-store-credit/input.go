@@ -46,43 +46,42 @@ type Input struct {
 
 // Convert the raw inputs contained in the 'data' buffer to 'Input' structs
 // and write the latter to the returned channel.
-func InputChan(data []byte) chan Input {
-	ch := make(chan Input)
+func ProcessInput(data []byte) (int, chan string) {
+	count := 0
+	rchan := make(chan string)
 
-	go func() {
-		lines := strings.Split(strings.TrimSpace(string(data)), "\n", -1)
-		//fmt.Printf("number of lines: %v\n", len(lines))
-		//fmt.Printf("lines: %q\n", lines)
+	lines := strings.Split(strings.TrimSpace(string(data)), "\n", -1)
+	//fmt.Printf("number of lines: %v\n", len(lines))
+	//fmt.Printf("lines: %q\n", lines)
 
-		var credit uint
-		var err os.Error
+	var credit uint
+	var err os.Error
 
-		// skip leading line with the total number of inputs
-		for i, line := range lines[1:] {
-			switch i % 3 {
-			case 0: // credit
-				credit, err = strconv.Atoui(line)
-				if err != nil {
-					fmt.Printf("invalid credit '%s'; err=%s\n",
-						line, err.String())
-					os.Exit(2)
-				}
-			case 2: // the store items
-				fields := strings.Fields(line)
-				items := make([]uint, len(fields))
-				for fi, field := range fields {
-					items[fi], err = strconv.Atoui(field)
-					if err != nil {
-						fmt.Printf("invalid store item '%s'; err=%s\n",
-							field, err.String())
-						os.Exit(3)
-					}
-				}
-				input := Input{uint(i/3 + 1), credit, items}
-				ch <- input
+	// skip leading line with the total number of inputs
+	for i, line := range lines[1:] {
+		switch i % 3 {
+		case 0: // credit
+			credit, err = strconv.Atoui(line)
+			if err != nil {
+				fmt.Printf("invalid credit '%s'; err=%s\n",
+					line, err.String())
+				os.Exit(2)
 			}
+		case 2: // the store items
+			fields := strings.Fields(line)
+			items := make([]uint, len(fields))
+			for fi, field := range fields {
+				items[fi], err = strconv.Atoui(field)
+				if err != nil {
+					fmt.Printf("invalid store item '%s'; err=%s\n",
+						field, err.String())
+					os.Exit(3)
+				}
+			}
+			input := Input{uint(i/3 + 1), credit, items}
+			go FindItems(input, rchan)
+			count += 1
 		}
-		close(ch)
-	}()
-	return ch
+	}
+	return count, rchan
 }
