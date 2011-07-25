@@ -1,11 +1,82 @@
 #!/bin/bash
 
-rm -f test-data.txt
+help() {
+cat <<HSD
+`basename $0` runs the golang binary solving the "Store Credit" problem:
+    http://code.google.com/codejam/contest/dashboard?c=351101#s=p0
+and records timings.
 
-for n in 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16;
+The command line arguments are as follows:
+
+    --dryrun            just show commands that would be run [default: false]
+    --input=ipath       input file path
+    --max-cores=a       number of CPU cores to end with [default: 16]
+    --min-cores=i       number of CPU cores to start with [default: 1]
+    --output=opath      output file path [default: stats.txt]
+    --repetitions=m     number of test runs per configuration [default: 3]
+HSD
+exit 0
+}
+
+if [ $# -eq 0 ]; then
+    help
+fi
+
+dryrun="off"
+inputpath=""
+maxcores=16
+mincores=1
+outputpath="stats.txt"
+repetitions=3
+
+for i in $*
 do
-	for i in 1 2 3;
-	do
-		/usr/bin/time -o test-data.txt -a --format '"%C"  %e  %S  %U  %M' ./main -n $n -f A-100k.in>/dev/null;
+    case $i in
+    --dryrun)
+        dryrun="on"
+        ;;
+    --input=*)
+        inputpath=`echo $i | sed 's/[-a-zA-Z0-9]*=//'`
+        ;;
+    --maxcores=*)
+        maxcores=`echo $i | sed 's/[-a-zA-Z0-9]*=//'`
+        ;;
+    --mincores=*)
+        mincores=`echo $i | sed 's/[-a-zA-Z0-9]*=//'`
+        ;;
+    --output=*)
+        outputpath=`echo $i | sed 's/[-a-zA-Z0-9]*=//'`
+        ;;
+    --repetitions=*)
+        repetitions=`echo $i | sed 's/[-a-zA-Z0-9]*=//'`
+        ;;
+    -h|--help)
+        help
+        ;;
+    *)
+        echo "!! Uknown option: " $i
+        exit 2
+        ;;
+    esac
+done
+
+if [ -z "$inputpath" ]; then
+    echo "!! Please specify an input file path."
+    exit 3
+fi
+
+rm -f $outputpath
+
+cindex=$mincores
+while [ $cindex -le $maxcores ]; do
+    rindex=1
+    while [ $rindex -le $repetitions ]; do
+        if [ "$dryrun" = "on" ]; then
+		    echo /usr/bin/time -o $outputpath -a --format '"%C"  %e  %S  %U  %M' ./main -n $cindex -f $inputpath
+        else
+		    /usr/bin/time -o $outputpath -a --format '"%C"  %e  %S  %U  %M' ./main -n $cindex -f $inputpath > /dev/null
+        fi
+        ((rindex++))
 	done
+    ((cindex++))
 done
