@@ -7,7 +7,7 @@ import (
 	"io/ioutil"
 	"os"
 	"runtime"
-	)
+)
 
 
 var inputFileName = flag.String("f", "", "input data file")
@@ -18,7 +18,7 @@ func main() {
 	flag.Parse()
 	data, err := ioutil.ReadFile(*inputFileName)
 	if err != nil {
-		fmt.Printf("can't open file; err=%s\n",  err.String())
+		fmt.Printf("can't open file; err=%s\n", err.String())
 		os.Exit(1)
 	}
 

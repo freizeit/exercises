@@ -6,14 +6,14 @@ import (
 	"os"
 	"strconv"
 	"strings"
-	)
+)
 
 
 type Input struct {
-	Index uint	// input number, 1-based
-	Credit uint	// store credit
-	Items []uint	// store items (prices)
-	}
+	Index  uint   // input number, 1-based
+	Credit uint   // store credit
+	Items  []uint // store items (prices)
+}
 
 
 func InputChan(data []byte) chan Input {
@@ -29,26 +29,26 @@ func InputChan(data []byte) chan Input {
 		// skip leading line with the total number of inputs
 		for i, line := range lines[1:] {
 			switch i % 3 {
-				case 0:	// credit
-					credit, err = strconv.Atoui(line)
+			case 0: // credit
+				credit, err = strconv.Atoui(line)
+				if err != nil {
+					fmt.Printf("invalid credit '%s'; err=%s\n",
+						line, err.String())
+					os.Exit(2)
+				}
+			case 2: // the store items
+				fields := strings.Fields(line)
+				items := make([]uint, len(fields))
+				for fi, field := range fields {
+					items[fi], err = strconv.Atoui(field)
 					if err != nil {
-						fmt.Printf("invalid credit '%s'; err=%s\n",
-									  line, err.String())
-						os.Exit(2)
+						fmt.Printf("invalid store item '%s'; err=%s\n",
+							field, err.String())
+						os.Exit(3)
 					}
-				case 2:	// the store items
-					fields := strings.Fields(line)
-					items := make([]uint, len(fields))
-					for fi, field := range(fields) {
-						items[fi], err = strconv.Atoui(field)
-						if err != nil {
-							fmt.Printf("invalid store item '%s'; err=%s\n",
-										  field, err.String())
-							os.Exit(3)
-						}
-					}
-					input := Input{uint(i/3+1), credit, items}
-					ch <- input
+				}
+				input := Input{uint(i/3 + 1), credit, items}
+				ch <- input
 			}
 		}
 		close(ch)
