@@ -10,8 +10,8 @@ The command line arguments are as follows:
 
     --dryrun            just show commands that would be run [default: false]
     --input=ipath       input file path
-    --max-cores=a       number of CPU cores to end with [default: 16]
-    --min-cores=i       number of CPU cores to start with [default: 1]
+    --maxcores=a       number of CPU cores to end with [default: 16]
+    --mincores=i       number of CPU cores to start with [default: 1]
     --output=opath      output file path [default: stats.txt]
     --repetitions=m     number of test runs per configuration [default: 3]
 HSD
