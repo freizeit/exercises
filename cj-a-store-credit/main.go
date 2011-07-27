@@ -25,8 +25,6 @@ package main
 import (
 	"flag"
 	"fmt"
-	"io/ioutil"
-	"os"
 	"runtime"
 )
 
@@ -37,15 +35,10 @@ var numCores = flag.Int("n", 2, "number of CPU cores to use")
 
 func main() {
 	flag.Parse()
-	data, err := ioutil.ReadFile(*inputFileName)
-	if err != nil {
-		fmt.Printf("can't open file; err=%s\n", err.String())
-		os.Exit(1)
-	}
 
 	runtime.GOMAXPROCS(*numCores)
 
-	counter, rchan := ProcessInput(data)
+	counter, rchan := ProcessInput(*inputFileName)
 
 	for i := 0; i < counter; i++ {
 		result := <-rchan

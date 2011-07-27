@@ -30,6 +30,7 @@ package main
 
 
 import (
+	"bufio"
 	"fmt"
 	"os"
 	"strconv"
@@ -44,45 +45,78 @@ type Input struct {
 }
 
 
-// Convert the raw inputs contained in the 'data' buffer to 'Input' structs
-// and start a go routine for each of the latter. Return the number of
-// inputs processed as well as the channel from which to read the results.
-func ProcessInput(data []byte) (int, chan string) {
-	count := 0
-	rchan := make(chan string, 25000)
-
-	lines := strings.Split(strings.TrimSpace(string(data)), "\n", -1)
-	//fmt.Printf("number of lines: %v\n", len(lines))
-	//fmt.Printf("lines: %q\n", lines)
+// Convert the data contained in the file with the given 'path' to
+// 'Input' structs and start a go routine for each of the latter. Return
+// the number of inputs processed as well as the channel from which to
+// read the results.
+func ProcessInput(path string) (int, chan string) {
+	file, err := os.Open(path)
+	if err != nil {
+		fmt.Printf("can't open file; err=%s\n", err.String())
+		os.Exit(1)
+	}
+	defer file.Close()
+	reader := bufio.NewReader(file)
 
 	var credit uint
-	var err os.Error
 
-	// skip leading line with the total number of inputs
-	for i, line := range lines[1:] {
-		switch i % 3 {
+	numRoutines := 0
+	numLines := 0
+	rchan := make(chan string, 25000)
+
+	// Read the first line with the total number of inputs.
+	line, done := readLine(reader)
+	numLines += 1
+
+	for done != true {
+		line, done = readLine(reader)
+		line = strings.TrimSpace(line)
+
+		if line == "" {
+			continue
+		}
+
+		switch (numLines - 1) % 3 {
 		case 0: // credit
-			credit, err = strconv.Atoui(line)
+			value, err := strconv.Atoui(line)
 			if err != nil {
-				fmt.Printf("invalid credit '%s'; err=%s\n",
-					line, err.String())
+				fmt.Printf("invalid credit '%s' on line %d; err=%s\n",
+					line, numLines+1, err.String())
 				os.Exit(2)
 			}
+			credit = value
 		case 2: // the store items
 			fields := strings.Fields(line)
 			items := make([]uint, len(fields))
 			for fi, field := range fields {
-				items[fi], err = strconv.Atoui(field)
+				value, err := strconv.Atoui(field)
 				if err != nil {
-					fmt.Printf("invalid store item '%s'; err=%s\n",
-						field, err.String())
+					fmt.Printf("invalid store item '%s' on line %d; err=%s\n",
+						field, numLines+1, err.String())
 					os.Exit(3)
 				}
+				items[fi] = value
 			}
-			input := Input{uint(i/3 + 1), credit, items}
+			input := Input{uint(numLines / 3), credit, items}
 			go FindItems(input, rchan)
-			count += 1
+			numRoutines += 1
+		}
+		numLines += 1
+	}
+	return numRoutines, rchan
+}
+
+
+func readLine(reader *bufio.Reader) (string, bool) {
+	var done bool
+	line, err := reader.ReadString('\n')
+	if err != nil {
+		if err != os.EOF {
+			fmt.Printf("can't read line; err=%s\n", err.String())
+			os.Exit(4)
+		} else {
+			done = true
 		}
 	}
-	return count, rchan
+	return line, done
 }
