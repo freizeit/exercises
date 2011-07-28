@@ -101,12 +101,13 @@ func ProcessInput(path string) (int, chan string) {
 
 // Parse the line and return a slice with the store items (prices) found.
 func parseItems(line string) ([]uint, os.Error) {
+	// Split the line into words
 	fields := strings.Fields(line)
 	items := make([]uint, len(fields))
 	var err os.Error
 
-	for fi, field := range fields {
-		items[fi], err = strconv.Atoui(field)
+	for i, field := range fields {
+		items[i], err = strconv.Atoui(field)
 		if err != nil {
 			break
 		}
@@ -135,7 +136,7 @@ func nextThreeLines(reader *bufio.Reader) ([]string, os.Error) {
 			i += 1
 		}
 	}
-	if i != 0 && i < 3 {
+	if lines != nil && i < 3 {
 		err = os.NewError(fmt.Sprintf("%d lines of input", i))
 	}
 	return lines, err
