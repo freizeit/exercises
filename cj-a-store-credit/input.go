@@ -58,52 +58,84 @@ func ProcessInput(path string) (int, chan string) {
 	defer file.Close()
 	reader := bufio.NewReader(file)
 
-	var credit uint
-
 	numRoutines := 0
-	numLines := 0
 	rchan := make(chan string, 25000)
 
 	// Read the first line with the total number of inputs.
-	line, done := readLine(reader)
-	numLines += 1
+	_, done := readLine(reader)
 
 	for done != true {
-		line, done = readLine(reader)
-		line = strings.TrimSpace(line)
-
-		if line == "" {
+		// Read the next 3 non-empty lines from the input file
+		lines, numLines, err := nextThreeLines(reader)
+		if err != nil {
+			fmt.Printf("invalid input file; err=%s\n", err.String())
+			break
+		}
+		if numLines != 3 {
+			// EOF
+			done = true
 			continue
 		}
 
-		switch (numLines - 1) % 3 {
-		case 0: // credit
-			value, err := strconv.Atoui(line)
-			if err != nil {
-				fmt.Printf("invalid credit '%s' on line %d; err=%s\n",
-					line, numLines+1, err.String())
-				os.Exit(2)
-			}
-			credit = value
-		case 2: // the store items
-			fields := strings.Fields(line)
-			items := make([]uint, len(fields))
-			for fi, field := range fields {
-				value, err := strconv.Atoui(field)
-				if err != nil {
-					fmt.Printf("invalid store item '%s' on line %d; err=%s\n",
-						field, numLines+1, err.String())
-					os.Exit(3)
-				}
-				items[fi] = value
-			}
-			input := Input{uint(numLines / 3), credit, items}
-			go FindItems(input, rchan)
-			numRoutines += 1
+		// Parse the credit (from line 1)
+		credit, err := strconv.Atoui(lines[0])
+		if err != nil {
+			fmt.Printf("invalid credit '%s'; err=%s\n", lines[0], err.String())
+			break
 		}
-		numLines += 1
+
+		// Parse the store item prices (from line 3)
+		items, err := parseItems(lines[2])
+		if err != nil {
+			fmt.Printf("invalid item '%s'; err=%s\n", lines[2], err.String())
+			break
+		}
+
+		numRoutines += 1
+		input := Input{uint(numRoutines), credit, items}
+		go FindItems(input, rchan)
 	}
 	return numRoutines, rchan
+}
+
+
+// Parse the line and return a slice with the store items (prices) found.
+func parseItems(line string) ([]uint, os.Error) {
+	fields := strings.Fields(line)
+	items := make([]uint, len(fields))
+	var err os.Error
+
+	for fi, field := range fields {
+		items[fi], err = strconv.Atoui(field)
+		if err != nil {
+			break
+		}
+	}
+	return items, err
+}
+
+
+// Try reading the next 3 non-empty lines from the 'reader'. In case of succes
+// (we got 3 lines) the error will be 'nil'.
+func nextThreeLines(reader *bufio.Reader) ([]string, int, os.Error) {
+	i := 0
+	done := false
+	line := ""
+	lines := make([]string, 3)
+	var err os.Error
+
+	for done != true && i < 3 {
+		line, done = readLine(reader)
+		line = strings.TrimSpace(line)
+		if line != "" {
+			lines[i] = line
+			i += 1
+		}
+	}
+	if i != 0 && i < 3 {
+		err = os.NewError(fmt.Sprintf("%d lines of input", i))
+	}
+	return lines, i, err
 }
 
 
