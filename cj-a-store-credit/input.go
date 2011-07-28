@@ -49,7 +49,7 @@ type Input struct {
 // 'Input' structs and start a go routine for each of the latter. Return
 // the number of inputs processed as well as the channel from which to
 // read the results.
-func ProcessInput(path string) (int, chan string) {
+func ProcessInput(path string) (numRoutines int, rchan chan string) {
 	file, err := os.Open(path)
 	if err != nil {
 		panic(fmt.Sprintf("can't open file; err=%s\n", err.String()))
@@ -59,11 +59,10 @@ func ProcessInput(path string) (int, chan string) {
 
 	// Read the first line with the total number of inputs.
 	if _, done := readLine(reader); done == true {
-		return 0, nil
+		return
 	}
 
-	numRoutines := 0
-	rchan := make(chan string, 25000)
+	rchan = make(chan string, 25000)
 
 	for {
 		// Read the next 3 non-empty lines from the input file
@@ -100,30 +99,29 @@ func ProcessInput(path string) (int, chan string) {
 
 
 // Parse the line and return a slice with the store items (prices) found.
-func parseItems(line string) ([]uint, os.Error) {
+func parseItems(line string) (items []uint, err os.Error) {
 	// Split the line into words
 	fields := strings.Fields(line)
-	items := make([]uint, len(fields))
-	var err os.Error
 
 	for i, field := range fields {
+		if items == nil {
+			items = make([]uint, len(fields))
+		}
 		items[i], err = strconv.Atoui(field)
 		if err != nil {
 			break
 		}
 	}
-	return items, err
+	return
 }
 
 
 // Try reading the next 3 non-empty lines from the 'reader'. In case of succes
 // (we got 3 lines) the error will be 'nil'.
-func nextThreeLines(reader *bufio.Reader) ([]string, os.Error) {
+func nextThreeLines(reader *bufio.Reader) (lines []string, err os.Error) {
 	i := 0
 	done := false
 	line := ""
-	var lines []string
-	var err os.Error
 
 	for done != true && i < 3 {
 		line, done = readLine(reader)
@@ -139,7 +137,7 @@ func nextThreeLines(reader *bufio.Reader) ([]string, os.Error) {
 	if lines != nil && i < 3 {
 		err = os.NewError(fmt.Sprintf("%d lines of input", i))
 	}
-	return lines, err
+	return
 }
 
 
