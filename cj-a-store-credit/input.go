@@ -71,9 +71,8 @@ func ProcessInput(path string) (int, chan string) {
 			fmt.Printf("invalid input file; err=%s\n", err.String())
 			break
 		}
-		if numLines != 3 {
+		if done = numLines != 3; done == true {
 			// EOF
-			done = true
 			continue
 		}
 
