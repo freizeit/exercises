@@ -66,13 +66,14 @@ func ProcessInput(path string) (int, chan string) {
 
 	for done != true {
 		// Read the next 3 non-empty lines from the input file
-		lines, numLines, err := nextThreeLines(reader)
+		lines, err := nextThreeLines(reader)
 		if err != nil {
 			fmt.Printf("invalid input file; err=%s\n", err.String())
 			break
 		}
-		if done = numLines != 3; done == true {
+		if lines == nil {
 			// EOF
+			done = true
 			continue
 		}
 
@@ -116,17 +117,20 @@ func parseItems(line string) ([]uint, os.Error) {
 
 // Try reading the next 3 non-empty lines from the 'reader'. In case of succes
 // (we got 3 lines) the error will be 'nil'.
-func nextThreeLines(reader *bufio.Reader) ([]string, int, os.Error) {
+func nextThreeLines(reader *bufio.Reader) ([]string, os.Error) {
 	i := 0
 	done := false
 	line := ""
-	lines := make([]string, 3)
+	var lines []string
 	var err os.Error
 
 	for done != true && i < 3 {
 		line, done = readLine(reader)
 		line = strings.TrimSpace(line)
 		if line != "" {
+			if lines == nil {
+				lines = make([]string, 3)
+			}
 			lines[i] = line
 			i += 1
 		}
@@ -134,7 +138,7 @@ func nextThreeLines(reader *bufio.Reader) ([]string, int, os.Error) {
 	if i != 0 && i < 3 {
 		err = os.NewError(fmt.Sprintf("%d lines of input", i))
 	}
-	return lines, i, err
+	return lines, err
 }
 
 
