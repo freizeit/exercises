@@ -52,8 +52,7 @@ type Input struct {
 func ProcessInput(path string) (int, chan string) {
 	file, err := os.Open(path)
 	if err != nil {
-		fmt.Printf("can't open file; err=%s\n", err.String())
-		os.Exit(1)
+		panic(fmt.Sprintf("can't open file; err=%s\n", err.String()))
 	}
 	defer file.Close()
 	reader := bufio.NewReader(file)
@@ -145,12 +144,11 @@ func nextThreeLines(reader *bufio.Reader) ([]string, os.Error) {
 
 
 func readLine(reader *bufio.Reader) (string, bool) {
-	var done bool
+	done := false
 	line, err := reader.ReadString('\n')
 	if err != nil {
 		if err != os.EOF {
-			fmt.Printf("can't read line; err=%s\n", err.String())
-			os.Exit(4)
+			panic(fmt.Sprintf("can't read line; err=%s\n", err.String()))
 		} else {
 			done = true
 		}
