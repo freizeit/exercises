@@ -58,13 +58,15 @@ func ProcessInput(path string) (int, chan string) {
 	defer file.Close()
 	reader := bufio.NewReader(file)
 
+	// Read the first line with the total number of inputs.
+	if _, done := readLine(reader); done == true {
+		return 0, nil
+	}
+
 	numRoutines := 0
 	rchan := make(chan string, 25000)
 
-	// Read the first line with the total number of inputs.
-	_, done := readLine(reader)
-
-	for done != true {
+	for {
 		// Read the next 3 non-empty lines from the input file
 		lines, err := nextThreeLines(reader)
 		if err != nil {
@@ -73,8 +75,7 @@ func ProcessInput(path string) (int, chan string) {
 		}
 		if lines == nil {
 			// EOF
-			done = true
-			continue
+			break;
 		}
 
 		// Parse the credit (from line 1)
