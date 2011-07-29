@@ -120,7 +120,8 @@ func parseItems(line string) (items []uint, err os.Error) {
 
 
 // Try reading the next 3 non-empty lines from the 'reader'. In case of succes
-// (we got 3 lines) the error will be 'nil'.
+// (we got 3 lines) the error will be 'nil'. If we reach the end of file (i.e.
+// not a single non-empty line could be read) 'lines' will be nil.
 func next3lines(reader *bufio.Reader) (lines []string, err os.Error) {
 	i := 0
 	done := false
@@ -146,6 +147,8 @@ func next3lines(reader *bufio.Reader) (lines []string, err os.Error) {
 }
 
 
+// Read a single line using the given 'reader'. The 'done' flag will be true
+// if we read the last line.
 func readLine(reader *bufio.Reader) (string, bool) {
 	done := false
 	line, err := reader.ReadString('\n')
