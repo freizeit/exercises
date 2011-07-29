@@ -31,6 +31,7 @@ import (
 
 var inputFileName = flag.String("f", "", "input data file")
 var numCores = flag.Int("n", 2, "number of CPU cores to use")
+var rchanSize = flag.Uint("s", 10000, "result channel buffer size")
 
 
 func main() {
@@ -38,7 +39,7 @@ func main() {
 
 	runtime.GOMAXPROCS(*numCores)
 
-	counter, rchan := ProcessInput(*inputFileName)
+	counter, rchan := ProcessInput(*inputFileName, *rchanSize)
 
 	for i := 0; i < counter; i++ {
 		result := <-rchan

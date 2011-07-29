@@ -8,11 +8,13 @@ and records timings.
 
 The command line arguments are as follows:
 
+    --append            append to output file, don't overwrite [default: false]
     --dryrun            just show commands that would be run [default: false]
     --input=ipath       input file path
-    --maxcores=a       number of CPU cores to end with [default: 16]
-    --mincores=i       number of CPU cores to start with [default: 1]
+    --maxcores=a        number of CPU cores to end with [default: 16]
+    --mincores=i        number of CPU cores to start with [default: 1]
     --output=opath      output file path [default: stats.txt]
+    --rchansize=s       result channel buffer size [default: 10000]
     --repetitions=m     number of test runs per configuration [default: 3]
 HSD
 exit 0
@@ -22,16 +24,21 @@ if [ $# -eq 0 ]; then
     help
 fi
 
+append="off"
 dryrun="off"
 inputpath=""
 maxcores=16
 mincores=1
 outputpath="stats.txt"
 repetitions=3
+rchansize=10000
 
 for i in $*
 do
     case $i in
+    --append)
+        append="on"
+        ;;
     --dryrun)
         dryrun="on"
         ;;
@@ -50,6 +57,9 @@ do
     --repetitions=*)
         repetitions=`echo $i | sed 's/[-a-zA-Z0-9]*=//'`
         ;;
+    --rchansize=*)
+        rchansize=`echo $i | sed 's/[-a-zA-Z0-9]*=//'`
+        ;;
     -h|--help)
         help
         ;;
@@ -65,18 +75,20 @@ if [ -z "$inputpath" ]; then
     exit 3
 fi
 
-rm -f $outputpath
+if [ "$append" = "off" ]; then
+    rm -f $outputpath
+fi
 
 cindex=$mincores
 while [ $cindex -le $maxcores ]; do
     rindex=1
     while [ $rindex -le $repetitions ]; do
         if [ "$dryrun" = "on" ]; then
-		    echo /usr/bin/time -o $outputpath -a --format '"%C"  %e  %S  %U  %M' ./main -n $cindex -f $inputpath
+            echo /usr/bin/time -o $outputpath -a --format '"%C"  %e  %S  %U  %M' ./main -n $cindex -f $inputpath -s $rchansize
         else
-		    /usr/bin/time -o $outputpath -a --format '"%C"  %e  %S  %U  %M' ./main -n $cindex -f $inputpath > /dev/null
+            /usr/bin/time -o $outputpath -a --format '"%C"  %e  %S  %U  %M' ./main -n $cindex -f $inputpath -s $rchansize > /dev/null
         fi
         ((rindex++))
-	done
+    done
     ((cindex++))
 done

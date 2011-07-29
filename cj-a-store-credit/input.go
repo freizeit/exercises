@@ -49,7 +49,7 @@ type Input struct {
 // 'Input' structs and start a go routine for each of the latter. Return
 // the number of inputs processed as well as the channel from which to
 // read the results.
-func ProcessInput(path string) (count int, rchan chan string) {
+func ProcessInput(path string, rchanSize uint) (count int, rchan chan string) {
 	file, err := os.Open(path)
 	if err != nil {
 		panic(fmt.Sprintf("can't open file; err=%s\n", err.String()))
@@ -62,7 +62,7 @@ func ProcessInput(path string) (count int, rchan chan string) {
 		return
 	}
 
-	rchan = make(chan string, 25000)
+	rchan = make(chan string, rchanSize)
 
 	for {
 		// Read the next 3 non-empty lines from the input file
