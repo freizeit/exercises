@@ -1,6 +1,7 @@
 module Main
 where
 
+
 {-
 	A program solving
 
@@ -21,6 +22,7 @@ where
 	n > 1 the results are output in random order.
 -}
 
+
 import Control.Monad
 import Data.Either (lefts, rights)
 import System.Environment
@@ -32,20 +34,13 @@ main = do
     case input of
         Nothing -> error "Malformed input file"
         Just ts -> do
-            {-
-            when (not (null malformedTasks)) (do
-                putStrLn "Malformed task(s):"
-                mapM_ (putStrLn . show) malformedTasks)
-            when (not (null wellformedTasks)) (do
-                putStrLn "Well-formed task(s):"
-                mapM_ (putStrLn . show) wellformedTasks)
-            -}
             mapM_ handleTask (zip [1..] wellformedTasks)
             where
                 malformedTasks = lefts ts
                 wellformedTasks = rights ts
 
 
+-- Make sure the task is calculated and print the results accordingly.
 handleTask :: (Int, I.Task) -> IO ()
 handleTask (i,t) = do
     case calculate t of
@@ -61,13 +56,17 @@ calculate :: I.Task -> Maybe (Int, Int)
 calculate t =
     calculate' x xs c
     where
+        -- start with the first item in the list ..
         x = (1, head (I.items t))
+        -- .. and see whether adding any of the remaining items maxes out the
+        -- store credit.
         xs = zip [2,3..] (tail (I.items t))
         c = I.credit t
-        calculate' _ [] _ = Nothing
+        calculate' _ [] _ = Nothing -- failure case.
         calculate' (i1, x1) xs c =
             -- Look for the first element in xs where the sum matches c
             let l = dropWhile (\(_, x2) -> x1 + x2 /= c) xs in
             case l of
                 [] -> calculate' (head xs) (tail xs) c
+                -- success, sum of 2 items matches the store credit.
                 ((i2,_):_) -> Just (i1, i2)
