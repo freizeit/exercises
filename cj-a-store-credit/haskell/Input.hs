@@ -15,7 +15,6 @@ data Task = Task { credit :: Int
 -- Parse an input file.
 parseFile :: String -> IO (Maybe [Either String Task])
 parseFile name = do
-    -- ignore first line in the file
     contents <- L.readFile name
     let lines = L.split '\n' contents
         -- ignore the first (total number of tasks) and the last (empty) line.
