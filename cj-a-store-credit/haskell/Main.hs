@@ -23,8 +23,6 @@ where
 -}
 
 
-import Control.DeepSeq
-import Control.Exception
 import Control.Monad
 import Control.Parallel.Strategies
 import Data.Either (lefts, rights)
@@ -41,7 +39,7 @@ main = do
         Just ts ->
             -- mapM_ putStrLn $ (parMap rseq) handleTask wellformedTasks
             -- return (parMap rseq handleTask wellformedTasks) >> return ()
-            print $ length ((parMap rseq) handleTask wellformedTasks)
+            print $ length (parMap rseq handleTask wellformedTasks)
             where
                 wellformedTasks = zip [1..] (rights ts)
 
