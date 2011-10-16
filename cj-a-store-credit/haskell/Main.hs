@@ -23,36 +23,40 @@ where
 -}
 
 
+import Control.DeepSeq
+import Control.Exception
 import Control.Monad
+import Control.Parallel.Strategies
 import Data.Either (lefts, rights)
 import System.Environment
 import qualified Input as I
 
+
+main :: IO ()
 main = do
-    args <- getArgs
-    input <- I.parseFile $ head args
+    [fn] <- getArgs
+    input <- I.parseFile fn
     case input of
-        Nothing -> error "Malformed input file"
-        Just ts -> do
-            mapM_ handleTask (zip [1..] wellformedTasks)
+        Nothing -> putStrLn "Malformed input file"
+        Just ts ->
+            -- mapM_ putStrLn $ (parMap rseq) handleTask wellformedTasks
+            -- return (parMap rseq handleTask wellformedTasks) >> return ()
+            print $ length ((parMap rseq) handleTask wellformedTasks)
             where
-                malformedTasks = lefts ts
-                wellformedTasks = rights ts
+                wellformedTasks = zip [1..] (rights ts)
 
 
 -- Make sure the task is calculated and print the results accordingly.
-handleTask :: (Int, I.Task) -> IO ()
-handleTask (i,t) = do
+handleTask :: (Integer, I.Task) -> String
+handleTask (i,t) =
     case calculate t of
-        Nothing ->
-            putStrLn ("Case #" ++ (show i) ++ ": no solution found")
+        Nothing -> ("Case #" ++ (show i) ++ ": no solution found")
         Just (i1, i2) ->
-            putStrLn ("Case #" ++ (show i) ++ ": " ++ (show i1) ++ " " ++
-                      (show i2))
+            ("Case #" ++ (show i) ++ ": " ++ (show i1) ++ " " ++ (show i2))
         
     
 -- Calculate a single task.
-calculate :: I.Task -> Maybe (Int, Int)
+calculate :: I.Task -> Maybe (Integer, Integer)
 calculate t =
     calculate' x xs c
     where
