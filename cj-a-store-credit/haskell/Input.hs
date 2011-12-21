@@ -5,7 +5,7 @@ module Input
 
 
 import Data.Either
-import qualified Data.ByteString.Lazy.Char8 as L
+import qualified Data.ByteString.Char8 as L
 
 
 data Task = Task { credit :: Int
