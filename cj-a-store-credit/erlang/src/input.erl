@@ -152,12 +152,19 @@ handle_file_test_() ->
 test_handle_file_with_1_rec(T) ->
     {"Exercise handle_file() with one store record",
      fun() ->
-        ok = file:write_file(T, string:join(["1", "15", "3", "7 8 3"], "\n")),
+        ok = file:write_file(
+            T, string:join(["2", "15", "3", "3 7 8", "2", "2", "1 1"], "\n")),
         Count = handle_file(T, self()),
-        ?assertEqual(1, Count),
+        ?assertEqual(2, Count),
         receive
-            Result ->
-                ?assertEqual(<<"Case 1: 1 2">>, iolist_to_binary(Result))
+            Result1 ->
+                ?assertEqual(<<"Case 1: 2 3">>, iolist_to_binary(Result1))
+        after 1000 ->
+            ?assert(false)
+        end,
+        receive
+            Result2 ->
+                ?assertEqual(<<"Case 2: 1 2">>, iolist_to_binary(Result2))
         after 1000 ->
             ?assert(false)
         end
