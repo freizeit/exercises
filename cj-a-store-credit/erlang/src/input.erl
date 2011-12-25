@@ -1,37 +1,42 @@
 -module(input).
--export([handle_file/3]).
+-export([handle_file/2]).
+-import(calc, [find_items/0]).
+-include("data_defs.hrl").
 
 -ifdef(TEST).
 -import(test_helpers, [setup/0, teardown/1]).
 -include_lib("eunit/include/eunit.hrl").
 -endif.
 
--record(
-    storerec, {index :: integer(), credit :: number(), items :: [number()] }).
-
-
 %% @doc Read input file and spawn a process for each store record found. Return
 %% the number of store records processed.
 -spec
-    handle_file(Path :: string(), Fun :: function(), Receiver :: pid())
+    handle_file(Path :: string(), Rcvr :: pid())
     -> integer().
-handle_file(Path, Fun, Receiver) ->
+handle_file(Path, Rcvr) ->
     {ok, Fh} = file:open(Path, [read,raw,{read_ahead,1048576}]),
     % ignore first line
     {ok, _} = file:read_line(Fh),
-    do_handle_file(Fh, Fun, Receiver, 0).
+    do_handle_file(Fh, Rcvr, 0).
 
+
+%% doc Read 3 lines and convert them to a store record. Call calc:find_items()
+%$ (in a separate process) for each store record found. Returns the number of
+%% store records found.
 -spec
-    do_handle_file(Fh :: file:io_device(), Fun :: function(),
-                   Receiver :: pid(), N :: integer())
+    do_handle_file(Fh :: file:io_device(), Rcvr :: pid(), N :: integer())
     -> integer().
-do_handle_file(Fh, _Fun, _Receiver, _N) ->
-    {ok, Ls} = read_n_lines(Fh, [], 3),
-    parse_storerec(Ls),
-    1.
+do_handle_file(Fh, Rcvr, N) ->
+    case read_n_lines(Fh, [], 3) of
+        {ok, [L1,_,L3]} ->
+            {C, _} = string:to_integer(L1),
+            Is = [P || {P,_} <- lists:map(fun string:to_integer/1, string:tokens(L3))],
+            R = #storerec{index=N+1, credit=C, items=Is},
+            spawn(calc, find_items, [R, Rcvr]),
+            do_handle_file(Fh, Rcvr, N+1);
+        eof -> N
+    end.
 
--spec parse_storerec(Ls :: [string()]) -> storerec | {error, string()}.
-parse_storerec(_Ls) -> #storerec{}.
 
 %% @doc Read the next N lines from the given file handle.
 -spec
