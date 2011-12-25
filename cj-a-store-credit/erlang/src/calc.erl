@@ -21,10 +21,10 @@ find_items(Srec, Rcvr) ->
     end.
 
 %% doc Find the two items whose prices add up to the granted store credit.
-%% Return the 1-based indices of the items found or nomatch if there is no
+%% Return the 1-based indices of the items found or 'nomatch' if there is no
 %% solution.
 -spec
-do_find_items(C :: number(), Is :: [{integer(), number()}])
+    do_find_items(C :: number(), Is :: [{integer(), number()}])
     -> {integer(), integer()} | nomatch.
 
 % There is no solution for a zero store credit.
@@ -34,11 +34,16 @@ do_find_items(_, []) -> nomatch;
 % No solution for an almost empty store (only one item).
 do_find_items(_, [_]) -> nomatch;
 
-do_find_items(C, [{Ih, Ph}|Is]) ->
-    Rest = lists:dropwhile(fun({_, Pi}) -> Ph+Pi =/= C end, Is),
+do_find_items(C, [{Idx, Price}|Is]) ->
+    % Go through the remaining items until you find a matching item
+    % or until these are exhausted.
+    Rest = lists:dropwhile(fun({_, Pi}) -> Price + Pi =/= C end, Is),
     case Rest of
+        % No match found.
         [] -> do_find_items(C, Is);
-        [{Ii, _}|_] -> { Ih, Ii}
+        % Match found, return the indices of the 2 store items
+        % whose prices add to the granted store credit.
+        [{Ii, _}|_] -> { Idx, Ii}
     end.
 
 
@@ -49,9 +54,15 @@ ei(Is) -> lists:zip(lists:seq(1, length(Is)), Is).
 
 -ifdef(TEST).
 % -----------------------------------------------------------------------------
+% -----------------------------------------------------------------------------
+% -----------------------------------------------------------------------------
+% Tests for do_find_items()
+% -----------------------------------------------------------------------------
 do_find_items_simple_test() ->
-    ?assertEqual(
-        {1, 2}, do_find_items(10, ei([2, 8]))).
+    {"Simple success test with two store items.",
+     fun() ->
+        ?assertEqual(
+            {1, 2}, do_find_items(10, ei([2, 8]))) end}.
 
 do_find_items_not_so_simple_test() ->
     ?assertEqual(
@@ -74,6 +85,9 @@ do_find_items_zero_credit_test() ->
         nomatch, do_find_items(0, [1, 2])).
 
 
+% -----------------------------------------------------------------------------
+% Tests for find_items()
+% -----------------------------------------------------------------------------
 find_items_simple_test() ->
     find_items(#storerec{index=11, credit=21, items=[3, 18]}, self()),
     receive
