@@ -31,25 +31,35 @@ find_items(Srec, Rcvr) ->
 do_find_items(0, _) -> nomatch;
 % No solution for an empty store (no items).
 do_find_items(_, []) -> nomatch;
-% No solution for an almost empty store (only one item).
+% No solution for an almost empty store (we need at least 2 items).
 do_find_items(_, [_]) -> nomatch;
 
 do_find_items(C, [{Idx, Price}|Is]) ->
-    % Go through the remaining items until you find a matching item
-    % or until these are exhausted.
-    Rest = lists:dropwhile(fun({_, Pi}) -> Price + Pi =/= C end, Is),
+    % We take the first store item in the list, then go through the
+    % tail/remaining items until we find a match or until the latter are
+    % exhausted.
+    Rest = lists:dropwhile(
+        fun({_, Other_price}) -> Price + Other_price =/= C end, Is),
     case Rest of
         % No match found.
         [] -> do_find_items(C, Is);
         % Match found, return the indices of the 2 store items
         % whose prices add to the granted store credit.
-        [{Ii, _}|_] -> { Idx, Ii}
+        [{Other_idx, _}|_] -> { Idx, Other_idx}
     end.
 
 
 %% doc enumerate the given list.
 -spec ei(Is :: [number()]) -> [{integer(), number()}].
 ei(Is) -> lists:zip(lists:seq(1, length(Is)), Is).
+
+
+
+
+
+
+
+
 
 
 -ifdef(TEST).
