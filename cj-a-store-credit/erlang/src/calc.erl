@@ -69,30 +69,22 @@ ei(Is) -> lists:zip(lists:seq(1, length(Is)), Is).
 % Tests for do_find_items()
 % -----------------------------------------------------------------------------
 do_find_items_simple_test() ->
-    {"Simple success test with two store items.",
-     fun() ->
-        ?assertEqual(
-            {1, 2}, do_find_items(10, ei([2, 8]))) end}.
+    ?assertEqual({1, 2}, do_find_items(10, ei([2, 8]))).
 
 do_find_items_not_so_simple_test() ->
-    ?assertEqual(
-        {2, 6}, do_find_items(9, ei([2, 8, 99, 22, 11, 1]))).
+    ?assertEqual({2, 6}, do_find_items(9, ei([2, 8, 99, 22, 11, 1]))).
 
 do_find_items_no_solution_test() ->
-    ?assertEqual(
-        nomatch, do_find_items(1, ei([2, 8, 99, 22, 11, 1]))).
+    ?assertEqual(nomatch, do_find_items(1, ei([2, 8, 99, 22, 11, 1]))).
 
 do_find_items_single_store_item_test() ->
-    ?assertEqual(
-        nomatch, do_find_items(2, ei([2]))).
+    ?assertEqual(nomatch, do_find_items(2, ei([2]))).
 
 do_find_items_no_store_item_test() ->
-    ?assertEqual(
-        nomatch, do_find_items(2, ei([]))).
+    ?assertEqual(nomatch, do_find_items(2, ei([]))).
 
 do_find_items_zero_credit_test() ->
-    ?assertEqual(
-        nomatch, do_find_items(0, [1, 2])).
+    ?assertEqual(nomatch, do_find_items(0, [1, 2])).
 
 
 % -----------------------------------------------------------------------------

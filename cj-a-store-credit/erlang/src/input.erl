@@ -1,5 +1,5 @@
 -module(input).
--export([handle_file/2]).
+-export([handle_file/2, handle_store_record/3]).
 -import(calc, [find_items/0]).
 -include("data_defs.hrl").
 
@@ -24,19 +24,31 @@ handle_file(Path, Rcvr) ->
 %% doc Read 3 lines and convert them to a store record. Call calc:find_items()
 %% (in a separate process) for each store record found. Returns the number of
 %% store records found.
+%% Please note: we want to do as little work as possible in the process that
+%% is reading the input file.
 -spec
     do_handle_file(Fh :: file:io_device(), Rcvr :: pid(), N :: integer())
     -> integer().
 do_handle_file(Fh, Rcvr, N) ->
     case read_n_lines(Fh, [], 3) of
-        {ok, [L1,_,L3]} ->
-            {C, _} = string:to_integer(L1),
-            Is = [P || {P,_} <- lists:map(fun string:to_integer/1, string:tokens(L3, " "))],
-            R = #storerec{index=N+1, credit=C, items=Is},
-            spawn(calc, find_items, [R, Rcvr]),
+        {ok, Ls} ->
+            spawn(?MODULE, handle_store_record, [Ls, Rcvr, N+1]),
             do_handle_file(Fh, Rcvr, N+1);
         eof -> N
     end.
+
+
+%% doc Handles one store record. Convert the 3 given input lines to a
+%% 'storerec' and call the function that will find the 2 store items whose prise
+%% adds up to the store credit granted.
+-spec
+    handle_store_record(Ls :: [string()], Rcvr :: pid(), N :: integer())
+    -> none().
+handle_store_record([L1, _, L3], Rcvr, N) ->
+    {C, _} = string:to_integer(L1),
+    Is = [P || {P,_} <- lists:map(fun string:to_integer/1, string:tokens(L3, " "))],
+    R = #storerec{index=N, credit=C, items=Is},
+    calc:find_items(R, Rcvr).
 
 
 %% @doc Read the next N lines from the given file handle.
@@ -169,4 +181,26 @@ test_handle_file_with_1_rec(T) ->
             ?assert(false)
         end
      end}.
+
+% -----------------------------------------------------------------------------
+% Tests for handle_store_record()
+% -----------------------------------------------------------------------------
+handle_store_record_with_solution_test() ->
+    handle_store_record(["12", "4", "1 2 3 10"], self(), 71),
+    receive
+        Result ->
+            ?assertEqual(<<"Case 71: 2 4">>, iolist_to_binary(Result))
+    after 1000 ->
+        ?assert(false)
+    end.
+
+handle_store_record_without_solution_test() ->
+    handle_store_record(["13", "5", "1 2 0 10 33"], self(), 72),
+    receive
+        Result ->
+            ?assertEqual(<<"No solution for case #72">>,
+                         iolist_to_binary(Result))
+    after 1000 ->
+        ?assert(false)
+    end.
 -endif.
