@@ -18,7 +18,7 @@ handle_file(Path, Rcvr) ->
     {ok, Fh} = file:open(Path, [read,raw,{read_ahead,1048576}]),
     % ignore first line
     {ok, _} = file:read_line(Fh),
-    do_handle_file(Fh, Rcvr, 0).
+    Rcvr ! {count, do_handle_file(Fh, Rcvr, 0)}.
 
 
 %% doc Read 3 lines and convert them to a store record. Call calc:find_items()
@@ -137,7 +137,7 @@ test_do_handle_file_with_1_rec(T) ->
         Count = do_handle_file(Fh, self(), 0),
         ?assertEqual(1, Count),
         receive
-            Result ->
+            {res, Result} ->
                 ?assertEqual(<<"Case 1: 1 3">>, iolist_to_binary(Result))
         after 1000 ->
             ?assert(false)
@@ -152,28 +152,31 @@ handle_file_test_() ->
      fun() -> test_helpers:setup() end,
      fun(T) -> test_helpers:teardown(T) end,
      [
-        fun test_handle_file_with_1_rec/1
+        fun test_handle_file_with_2_recs/1
      ]
     }.
 
-test_handle_file_with_1_rec(T) ->
+test_handle_file_with_2_recs(T) ->
     {"Exercise handle_file() with one store record",
      fun() ->
         ok = file:write_file(
             T, string:join(["2", "15", "3", "3 7 8", "2", "2", "1 1"], "\n")),
-        Count = handle_file(T, self()),
+        {count, Count} = handle_file(T, self()),
         ?assertEqual(2, Count),
         receive
-            Result1 ->
+            {res, Result1} ->
                 ?assertEqual(<<"Case 1: 2 3">>, iolist_to_binary(Result1))
         after 1000 ->
             ?assert(false)
         end,
         receive
-            Result2 ->
+            {res, Result2} ->
                 ?assertEqual(<<"Case 2: 1 2">>, iolist_to_binary(Result2))
         after 1000 ->
             ?assert(false)
+        end,
+        receive
+            {count, V} -> ?assertEqual(2, V)
         end
      end}.
 
@@ -183,7 +186,7 @@ test_handle_file_with_1_rec(T) ->
 handle_store_record_with_solution_test() ->
     handle_store_record(["12", "4", "1 2 3 10"], self(), 71),
     receive
-        Result ->
+        {res, Result} ->
             ?assertEqual(<<"Case 71: 2 4">>, iolist_to_binary(Result))
     after 1000 ->
         ?assert(false)
@@ -192,7 +195,7 @@ handle_store_record_with_solution_test() ->
 handle_store_record_without_solution_test() ->
     handle_store_record(["13", "5", "1 2 0 10 33"], self(), 72),
     receive
-        Result ->
+        {res, Result} ->
             ?assertEqual(<<"No solution for case #72">>,
                          iolist_to_binary(Result))
     after 1000 ->

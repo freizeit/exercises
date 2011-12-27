@@ -15,10 +15,12 @@
 find_items(Srec, Rcvr) ->
     case do_find_items(Srec#storerec.credit, ei(Srec#storerec.items)) of
         { I1, I2 } ->
-            Rcvr ! io_lib:format("Case ~w: ~w ~w", [Srec#storerec.index, I1, I2]);
+            R = io_lib:format("Case ~w: ~w ~w", [Srec#storerec.index, I1, I2]);
         nomatch ->
-            Rcvr ! "No solution for case #" ++ integer_to_list(Srec#storerec.index)
-    end.
+            R = "No solution for case #" ++ integer_to_list(Srec#storerec.index)
+    end,
+    Rcvr ! {res, R}.
+
 
 %% doc Find the two items whose prices add up to the granted store credit.
 %% Return the 1-based indices of the items found or 'nomatch' if there is no
@@ -93,7 +95,7 @@ do_find_items_zero_credit_test() ->
 find_items_simple_test() ->
     find_items(#storerec{index=11, credit=21, items=[3, 18]}, self()),
     receive
-        Result ->
+        {res, Result} ->
             ?assertEqual(<<"Case 11: 1 2">>, iolist_to_binary(Result))
     after 1000 ->
         ?assert(false)
@@ -102,7 +104,7 @@ find_items_simple_test() ->
 find_items_not_so_simple_test() ->
     find_items(#storerec{index=12, credit=110, items=[2, 8, 99, 22, 11, 1]}, self()),
     receive
-        Result ->
+        {res, Result} ->
             ?assertEqual(<<"Case 12: 3 5">>, iolist_to_binary(Result))
     after 1000 ->
         ?assert(false)
@@ -111,7 +113,7 @@ find_items_not_so_simple_test() ->
 find_items_no_solution_test() ->
     find_items(#storerec{index=13, credit=1, items=[2, 8, 99, 22, 11, 1]}, self()),
     receive
-        Result ->
+        {res, Result} ->
             ?assertEqual("No solution for case #13", Result)
     after 1000 ->
         ?assert(false)
@@ -120,7 +122,7 @@ find_items_no_solution_test() ->
 find_items_single_store_item_test() ->
     find_items(#storerec{index=14, credit=2, items=[2]}, self()),
     receive
-        Result ->
+        {res, Result} ->
             ?assertEqual("No solution for case #14", Result)
     after 1000 ->
         ?assert(false)
@@ -129,7 +131,7 @@ find_items_single_store_item_test() ->
 find_items_no_store_item_test() ->
     find_items(#storerec{index=15, credit=2, items=[]}, self()),
     receive
-        Result ->
+        {res, Result} ->
             ?assertEqual("No solution for case #15", Result)
     after 1000 ->
         ?assert(false)
@@ -138,7 +140,7 @@ find_items_no_store_item_test() ->
 find_items_zero_credit_test() ->
     find_items(#storerec{index=16, credit=0, items=[1,2]}, self()),
     receive
-        Result ->
+        {res, Result} ->
             ?assertEqual("No solution for case #16", Result)
     after 1000 ->
         ?assert(false)
