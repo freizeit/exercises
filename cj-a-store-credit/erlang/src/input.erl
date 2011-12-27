@@ -55,19 +55,14 @@ handle_store_record([L1, _, L3], Rcvr, N) ->
 -spec
     read_n_lines(Fh :: file:io_device(), Acc :: [string()], N :: integer())
     -> {ok | [string()]} | eof | {error, file:ext_posix()}.
+read_n_lines(_, Acc, 0) -> {ok, lists:reverse(Acc)};
 read_n_lines(Fh, Acc, N) ->
-    case N > 0 of
-        % We are done, reverse the accumulated data and return.
-        false -> {ok, lists:reverse(Acc)};
-        true ->
-            % Try reading another line.
-            case file:read_line(Fh) of
-                % We got another line, keep going.
-                {ok, Data} ->
-                    read_n_lines(Fh, [string:strip(Data, right, $\n)|Acc], N-1);
-                % Either at the end of file or something broke.
-                EofOrError -> EofOrError
-            end
+    % Try reading another line.
+    case file:read_line(Fh) of
+        % We got another line, keep going.
+        {ok, Data} -> read_n_lines(Fh, [Data|Acc], N-1);
+        % Either at the end of file or something broke.
+        EofOrError -> EofOrError
     end.
 
 
@@ -119,7 +114,7 @@ test_read_n_lines_with_3_of_3(T) ->
         ok = file:write_file(T, string:join(["L1", "L2", "L3"], "\n")),
         {ok, Fh} = file:open(T, [read,raw,{read_ahead,1048576}]),
         Result = read_n_lines(Fh, [], 3),
-        ?assertEqual({ok, ["L1", "L2", "L3"]}, Result)
+        ?assertEqual({ok, ["L1\n", "L2\n", "L3"]}, Result)
      end}.
 
 % -----------------------------------------------------------------------------
