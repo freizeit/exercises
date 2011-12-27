@@ -1,5 +1,5 @@
 -module(input).
--export([handle_file/2, handle_store_record/3]).
+-export([process_data/2, process_store_record/3]).
 -import(calc, [find_items/0]).
 -include("data_defs.hrl").
 
@@ -12,13 +12,13 @@
 %% @doc Read input file and spawn a process for each store record found.
 %% Return the number of store records processed.
 -spec
-    handle_file(Path :: string(), Rcvr :: pid())
+    process_data(Path :: string(), Rcvr :: pid())
     -> integer().
-handle_file(Path, Rcvr) ->
+process_data(Path, Rcvr) ->
     {ok, Fh} = file:open(Path, [read,raw,{read_ahead,1048576}]),
     % ignore first line
     {ok, _} = file:read_line(Fh),
-    Rcvr ! {count, do_handle_file(Fh, Rcvr, 0)}.
+    Rcvr ! {count, do_process_data(Fh, Rcvr, 0)}.
 
 
 %% doc Read 3 lines and convert them to a store record. Call calc:find_items()
@@ -27,13 +27,13 @@ handle_file(Path, Rcvr) ->
 %% Please note: we want to do as little work as possible in the process that
 %% is reading the input file.
 -spec
-    do_handle_file(Fh :: file:io_device(), Rcvr :: pid(), N :: integer())
+    do_process_data(Fh :: file:io_device(), Rcvr :: pid(), N :: integer())
     -> integer().
-do_handle_file(Fh, Rcvr, N) ->
+do_process_data(Fh, Rcvr, N) ->
     case read_n_lines(Fh, [], 3) of
         {ok, Ls} ->
-            spawn(?MODULE, handle_store_record, [Ls, Rcvr, N+1]),
-            do_handle_file(Fh, Rcvr, N+1);
+            spawn(?MODULE, process_store_record, [Ls, Rcvr, N+1]),
+            do_process_data(Fh, Rcvr, N+1);
         eof -> N
     end.
 
@@ -42,9 +42,9 @@ do_handle_file(Fh, Rcvr, N) ->
 %% 'storerec' and call the function that will find the 2 store items whose prise
 %% adds up to the store credit granted.
 -spec
-    handle_store_record(Ls :: [string()], Rcvr :: pid(), N :: integer())
+    process_store_record(Ls :: [string()], Rcvr :: pid(), N :: integer())
     -> none().
-handle_store_record([L1, _, L3], Rcvr, N) ->
+process_store_record([L1, _, L3], Rcvr, N) ->
     {C, _} = string:to_integer(L1),
     Is = [P || {P,_} <- lists:map(fun string:to_integer/1, string:tokens(L3, " "))],
     R = #storerec{index=N, credit=C, items=Is},
@@ -118,23 +118,23 @@ test_read_n_lines_with_3_of_3(T) ->
      end}.
 
 % -----------------------------------------------------------------------------
-% Tests for do_handle_file()
+% Tests for do_process_data()
 % -----------------------------------------------------------------------------
-do_handle_file_test_() ->
+do_process_data_test_() ->
     {foreach,
      fun() -> test_helpers:setup() end,
      fun(T) -> test_helpers:teardown(T) end,
      [
-        fun test_do_handle_file_with_1_rec/1
+        fun test_do_process_data_with_1_rec/1
      ]
     }.
 
-test_do_handle_file_with_1_rec(T) ->
-    {"Exercise do_handle_file() with one store record",
+test_do_process_data_with_1_rec(T) ->
+    {"Exercise do_process_data() with one store record",
      fun() ->
         ok = file:write_file(T, string:join(["10", "3", "7 1 3"], "\n")),
         {ok, Fh} = file:open(T, [read,raw,{read_ahead,1048576}]),
-        Count = do_handle_file(Fh, self(), 0),
+        Count = do_process_data(Fh, self(), 0),
         ?assertEqual(1, Count),
         receive
             {res, Result} ->
@@ -145,23 +145,23 @@ test_do_handle_file_with_1_rec(T) ->
      end}.
 
 % -----------------------------------------------------------------------------
-% Tests for handle_file()
+% Tests for process_data()
 % -----------------------------------------------------------------------------
-handle_file_test_() ->
+process_data_test_() ->
     {foreach,
      fun() -> test_helpers:setup() end,
      fun(T) -> test_helpers:teardown(T) end,
      [
-        fun test_handle_file_with_2_recs/1
+        fun test_process_data_with_2_recs/1
      ]
     }.
 
-test_handle_file_with_2_recs(T) ->
-    {"Exercise handle_file() with one store record",
+test_process_data_with_2_recs(T) ->
+    {"Exercise process_data() with one store record",
      fun() ->
         ok = file:write_file(
             T, string:join(["2", "15", "3", "3 7 8", "2", "2", "1 1"], "\n")),
-        {count, Count} = handle_file(T, self()),
+        {count, Count} = process_data(T, self()),
         ?assertEqual(2, Count),
         receive
             {res, Result1} ->
@@ -181,10 +181,10 @@ test_handle_file_with_2_recs(T) ->
      end}.
 
 % -----------------------------------------------------------------------------
-% Tests for handle_store_record()
+% Tests for process_store_record()
 % -----------------------------------------------------------------------------
-handle_store_record_with_solution_test() ->
-    handle_store_record(["12", "4", "1 2 3 10"], self(), 71),
+process_store_record_with_solution_test() ->
+    process_store_record(["12", "4", "1 2 3 10"], self(), 71),
     receive
         {res, Result} ->
             ?assertEqual(<<"Case 71: 2 4">>, iolist_to_binary(Result))
@@ -192,8 +192,8 @@ handle_store_record_with_solution_test() ->
         ?assert(false)
     end.
 
-handle_store_record_without_solution_test() ->
-    handle_store_record(["13", "5", "1 2 0 10 33"], self(), 72),
+process_store_record_without_solution_test() ->
+    process_store_record(["13", "5", "1 2 0 10 33"], self(), 72),
     receive
         {res, Result} ->
             ?assertEqual(<<"No solution for case #72">>,

@@ -1,6 +1,6 @@
 -module(main).
 -export([main/1, printer/3]).
--import(input, [handle_file/2]).
+-import(input, [process_data/2]).
 
 -ifdef(TEST).
 -import(test_helpers, [setup/0, teardown/1]).
@@ -12,9 +12,10 @@
 %% doc The main() function, triggers the calculation.
 -spec main(Path :: string()) -> done.
 main(Path) ->
+    % A crude approximation of maxint. Good enough for the purpose at hand.
     Maxint = lists:last(erlang:system_info(heap_sizes)),
     Rcvr = spawn(?MODULE, printer, [fun io:format/1, Maxint, 1]),
-    input:handle_file(Path, Rcvr),
+    input:process_data(Path, Rcvr),
     done.
 
 
