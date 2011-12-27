@@ -1,5 +1,5 @@
 -module(main).
--export([main/1, printer/2]).
+-export([main/1, printer/3]).
 -import(input, [handle_file/2]).
 
 -ifdef(TEST).
@@ -10,15 +10,39 @@
 
 
 %% doc The main() function, triggers the calculation.
--spec main(Path :: string()) -> none().
-main(Path) -> nil.
+-spec main(Path :: string()) -> done.
+main(Path) ->
+    Rcvr = spawn(?MODULE, printer, [fun io:format/1, -1, 1]),
+    input:handle_file(Path, Rcvr),
+    done.
 
 
 %% doc Prints the results.
--spec printer(Max :: integer(), Count :: integer()) -> done.
-printer(N, N) -> done;
-printer(Max, Count) ->
+-spec printer(Fun :: function(), Max :: integer(), Count :: integer()) -> done.
+printer(_, N, N) -> done;
+printer(Fun, Max, Count) ->
     receive
-        {max, V} -> printer(V, Count);
-        {res, S} -> io:format(S), printer(Max, Count+1)
+        {max, V} -> printer(Fun, V, Count);
+        {res, S} -> Fun(S), printer(Fun, Max, Count+1)
     end.
+
+
+
+
+
+
+
+
+
+
+-ifdef(TEST).
+% -----------------------------------------------------------------------------
+% -----------------------------------------------------------------------------
+% -----------------------------------------------------------------------------
+% Tests for printer()
+% -----------------------------------------------------------------------------
+printer_exit_condition_test() ->
+    ?assertEqual(done, printer(fun erlang:exit/1, 11, 11)).
+
+printer_exit_condition_test() ->
+-endif.
