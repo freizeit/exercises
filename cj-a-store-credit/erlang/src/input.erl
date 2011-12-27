@@ -21,9 +21,7 @@ process_data(Path, Rcvr) ->
     Rcvr ! {count, do_process_data(Fh, Rcvr, 0)}.
 
 
-%% doc Read 3 lines and convert them to a store record. Call calc:find_items()
-%% (in a separate process) for each store record found. Returns the number of
-%% store records found.
+%% doc Read 3 lines and start the processing in a separate process.
 %% Please note: we want to do as little work as possible in the process that
 %% is reading the input file.
 -spec
