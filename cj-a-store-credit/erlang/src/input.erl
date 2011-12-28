@@ -26,7 +26,7 @@
     process_data(Path :: string(), Rcvr :: pid())
     -> integer().
 process_data(Path, Rcvr) ->
-    {ok, Fh} = file:open(Path, [read,raw,{read_ahead,1048576}]),
+    {ok, Fh} = file:open(Path, [read,raw,binary,{read_ahead,1048576}]),
     % ignore first line
     {ok, _} = file:read_line(Fh),
     Rcvr ! {count, do_process_data(Fh, Rcvr, 0)}.
@@ -51,11 +51,11 @@ do_process_data(Fh, Rcvr, N) ->
 %% 'storerec' and call the function that will find the 2 store items whose prise
 %% adds up to the store credit granted.
 -spec
-    process_store_record(Ls :: [string()], Rcvr :: pid(), N :: integer())
+    process_store_record(Ls :: [binary()], Rcvr :: pid(), N :: integer())
     -> none().
 process_store_record([L1, _, L3], Rcvr, N) ->
-    {C, _} = string:to_integer(L1),
-    Is = [P || {P,_} <- lists:map(fun string:to_integer/1, string:tokens(L3, " "))],
+    {C, _} = string:to_integer(binary_to_list(L1)),
+    Is = [P || {P,_} <- lists:map(fun(B) -> string:to_integer(binary_to_list(B)) end, binary:split(L3, <<" ">>, [global]))],
     R = #storerec{index=N, credit=C, items=Is},
     calc:find_items(R, Rcvr).
 
@@ -103,7 +103,7 @@ read_n_lines_test_() ->
 test_read_n_lines_empty_file(T) ->
     {"This should return 'eof' unless N is zero.",
      fun() ->
-        {ok, Fh} = file:open(T, [read,raw,{read_ahead,1048576}]),
+        {ok, Fh} = file:open(T, [read,raw,binary,{read_ahead,1048576}]),
         Result = read_n_lines(Fh, [], 3),
         ?assertEqual(eof, Result)
      end}.
@@ -112,7 +112,7 @@ test_read_n_lines_with_2_of_3(T) ->
     {"Not enough data (third line missing), this should return eof.",
      fun() ->
         ok = file:write_file(T, string:join(["L1", "L2"], "\n")),
-        {ok, Fh} = file:open(T, [read,raw,{read_ahead,1048576}]),
+        {ok, Fh} = file:open(T, [read,raw,binary,{read_ahead,1048576}]),
         Result = read_n_lines(Fh, [], 3),
         ?assertEqual(eof, Result)
      end}.
@@ -121,9 +121,9 @@ test_read_n_lines_with_3_of_3(T) ->
     {"This should return {ok, [L1, L2, L3]}.",
      fun() ->
         ok = file:write_file(T, string:join(["L1", "L2", "L3"], "\n")),
-        {ok, Fh} = file:open(T, [read,raw,{read_ahead,1048576}]),
+        {ok, Fh} = file:open(T, [read,raw,binary,{read_ahead,1048576}]),
         Result = read_n_lines(Fh, [], 3),
-        ?assertEqual({ok, ["L1\n", "L2\n", "L3"]}, Result)
+        ?assertEqual({ok, [<<"L1\n">>, <<"L2\n">>, <<"L3">>]}, Result)
      end}.
 
 % -----------------------------------------------------------------------------
@@ -142,7 +142,7 @@ test_do_process_data_with_1_rec(T) ->
     {"Exercise do_process_data() with one store record",
      fun() ->
         ok = file:write_file(T, string:join(["10", "3", "7 1 3"], "\n")),
-        {ok, Fh} = file:open(T, [read,raw,{read_ahead,1048576}]),
+        {ok, Fh} = file:open(T, [read,raw,binary,{read_ahead,1048576}]),
         Count = do_process_data(Fh, self(), 0),
         ?assertEqual(1, Count),
         receive
@@ -193,7 +193,7 @@ test_process_data_with_2_recs(T) ->
 % Tests for process_store_record()
 % -----------------------------------------------------------------------------
 process_store_record_with_solution_test() ->
-    process_store_record(["12", "4", "1 2 3 10"], self(), 71),
+    process_store_record([<<"12">>, <<"4">>, <<"1 2 3 10">>], self(), 71),
     receive
         {res, Result} ->
             ?assertEqual(<<"Case 71: 2 4">>, iolist_to_binary(Result))
@@ -202,7 +202,7 @@ process_store_record_with_solution_test() ->
     end.
 
 process_store_record_without_solution_test() ->
-    process_store_record(["13", "5", "1 2 0 10 33"], self(), 72),
+    process_store_record([<<"13">>, <<"5">>, <<"1 2 0 10 33">>], self(), 72),
     receive
         {res, Result} ->
             ?assertEqual(<<"No solution for case #72">>,
