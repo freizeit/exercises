@@ -10,7 +10,7 @@
 %%      the positions of the items in your list (smaller number first).
 
 -module(main).
--export([main/1, printer/3]).
+-export([main/1]).
 -import(input, [process_data/2]).
 
 -ifdef(TEST).
@@ -26,20 +26,20 @@ main(Path) ->
     % A crude approximation of maxint. Good enough for the purpose at hand.
     Maxint = lists:last(erlang:system_info(heap_sizes)),
     spawn(input, process_data, [Path, self()]),
-    printer(fun (S) -> io:format("~s~n", [S]) end, Maxint, 1).
+    print_solutions(fun (S) -> io:format("~s~n", [S]) end, Maxint, 1).
 
 
 %% doc Prints the results. The actual number of results is
 %% communicated via the {count, C} message.
 -spec
-    printer(Fun :: function(), Count :: integer(), Idx :: integer())
+    print_solutions(Fun :: function(), Count :: integer(), Idx :: integer())
     -> integer().
-printer(Fun, Count, Idx) ->
+print_solutions(Fun, Count, Idx) ->
     if
         Idx =< Count ->
             receive
-                {count, C} -> printer(Fun, C, Idx);
-                {res, S} -> Fun(S), printer(Fun, Count, Idx+1)
+                {count, C} -> print_solutions(Fun, C, Idx);
+                {res, S} -> Fun(S), print_solutions(Fun, Count, Idx+1)
             end;
         true -> Count
     end.
@@ -57,12 +57,12 @@ printer(Fun, Count, Idx) ->
 % -----------------------------------------------------------------------------
 % -----------------------------------------------------------------------------
 % -----------------------------------------------------------------------------
-% Tests for printer()
+% Tests for print_solutions()
 % -----------------------------------------------------------------------------
 printer_terminates_test() ->
     Me = self(),
     FakeFun = fun(S) -> Me ! S end,
-    P = spawn(?MODULE, printer, [FakeFun, 33, 1]),
+    P = spawn(?MODULE, print_solutions, [FakeFun, 33, 1]),
     timer:sleep(50),
     P ! { res, "R1" },
     P ! { res, "R3" },
