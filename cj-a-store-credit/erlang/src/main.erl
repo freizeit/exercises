@@ -21,13 +21,12 @@
 
 
 %% doc The main() function, triggers the calculation.
--spec main(Path :: string()) -> done.
+-spec main(Path :: string()) -> integer().
 main(Path) ->
     % A crude approximation of maxint. Good enough for the purpose at hand.
     Maxint = lists:last(erlang:system_info(heap_sizes)),
-    Rcvr = spawn(?MODULE, printer, [fun io:format/1, Maxint, 1]),
-    input:process_data(Path, Rcvr),
-    done.
+    spawn(input, process_data, [Path, self()]),
+    printer(fun (S) -> io:format("~s~n", [S]) end, Maxint, 1).
 
 
 %% doc Prints the results. The actual number of results is

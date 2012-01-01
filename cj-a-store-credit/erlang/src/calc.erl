@@ -26,7 +26,7 @@
 find_items(Srec, Rcvr) ->
     case do_find_items(Srec#storerec.credit, ei(Srec#storerec.items)) of
         { I1, I2 } ->
-            R = io_lib:format("Case ~w: ~w ~w", [Srec#storerec.index, I1, I2]);
+            R = io_lib:format("Case #~w: ~w ~w", [Srec#storerec.index, I1, I2]);
         nomatch ->
             R = "No solution for case #" ++ integer_to_list(Srec#storerec.index)
     end,
@@ -107,7 +107,7 @@ find_items_simple_test() ->
     find_items(#storerec{index=11, credit=21, items=[3, 18]}, self()),
     receive
         {res, Result} ->
-            ?assertEqual(<<"Case 11: 1 2">>, iolist_to_binary(Result))
+            ?assertEqual(<<"Case #11: 1 2">>, iolist_to_binary(Result))
     after 1000 ->
         ?assert(false)
     end.
@@ -116,7 +116,7 @@ find_items_not_so_simple_test() ->
     find_items(#storerec{index=12, credit=110, items=[2, 8, 99, 22, 11, 1]}, self()),
     receive
         {res, Result} ->
-            ?assertEqual(<<"Case 12: 3 5">>, iolist_to_binary(Result))
+            ?assertEqual(<<"Case #12: 3 5">>, iolist_to_binary(Result))
     after 1000 ->
         ?assert(false)
     end.

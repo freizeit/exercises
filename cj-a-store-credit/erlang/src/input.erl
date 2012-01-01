@@ -147,7 +147,7 @@ test_do_process_data_with_1_rec(T) ->
         ?assertEqual(1, Count),
         receive
             {res, Result} ->
-                ?assertEqual(<<"Case 1: 1 3">>, iolist_to_binary(Result))
+                ?assertEqual(<<"Case #1: 1 3">>, iolist_to_binary(Result))
         after 1000 ->
             ?assert(false)
         end
@@ -174,13 +174,13 @@ test_process_data_with_2_recs(T) ->
         ?assertEqual(2, Count),
         receive
             {res, Result1} ->
-                ?assertEqual(<<"Case 1: 2 3">>, iolist_to_binary(Result1))
+                ?assertEqual(<<"Case #1: 2 3">>, iolist_to_binary(Result1))
         after 1000 ->
             ?assert(false)
         end,
         receive
             {res, Result2} ->
-                ?assertEqual(<<"Case 2: 1 2">>, iolist_to_binary(Result2))
+                ?assertEqual(<<"Case #2: 1 2">>, iolist_to_binary(Result2))
         after 1000 ->
             ?assert(false)
         end,
@@ -196,7 +196,7 @@ process_store_record_with_solution_test() ->
     process_store_record([<<"12">>, <<"4">>, <<"1 2 3 10">>], self(), 71),
     receive
         {res, Result} ->
-            ?assertEqual(<<"Case 71: 2 4">>, iolist_to_binary(Result))
+            ?assertEqual(<<"Case #71: 2 4">>, iolist_to_binary(Result))
     after 1000 ->
         ?assert(false)
     end.

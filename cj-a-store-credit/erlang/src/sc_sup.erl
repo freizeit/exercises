@@ -34,5 +34,5 @@ start_link() ->
 %% ===================================================================
 
 init([]) ->
-    Children = [CHILD(sc_server, worker)],
-    {ok, { {one_for_one, 5, 10}, Children} }.
+    % Children = [CHILD(sc_server, worker)],
+    {ok, { {one_for_one, 5, 10}, []} }.
