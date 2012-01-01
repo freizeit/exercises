@@ -14,6 +14,7 @@
 -import(input, [process_data/2]).
 
 -ifdef(TEST).
+-export([print_solutions/3]).
 -import(test_helpers, [setup/0, teardown/1]).
 -define(DEBUG, true).
 -include_lib("eunit/include/eunit.hrl").
