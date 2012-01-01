@@ -27,8 +27,9 @@ main(Path) ->
     % A crude approximation of maxint. Good enough for the purpose at hand.
     Maxint = lists:last(erlang:system_info(heap_sizes)),
     spawn(input, process_data, [Path, self()]),
-    N = print_solutions(fun (S) -> io:format("~s~n", [S]) end, Maxint, 1),
-    io:format("Results printed: ~s~n", [integer_to_list(N)]),
+    {ok, Fh} = file:open("solution.txt", [write]),
+    N = print_solutions(fun (S) -> io:fwrite(Fh, "~s~n", [S]) end, Maxint, 1),
+    ok = file:close(Fh),
     N.
 
 
