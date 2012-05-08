@@ -3,7 +3,7 @@
 
 (defn find-match
   "Finds two prices whose sum equals the credit and returns these as a vector.
-   Otherwise nil is returned."
+   Otherwise returns nil"
   [c ps]
   (if (< (count ps) 2)  ;; at least two prices are needed for a solution
     nil ;; no solution
