@@ -8,9 +8,9 @@
     (. q put result)
     result))
 
-(defn find [t pl]
+(defn find-match [t pl]
   (let [fp (first pl) ps (rest pl)
-        remainder (drop-while #(not (= (+ fp %) t)) ps)]
+        remainder (seq (drop-while #(not (= (+ fp %) t)) ps))]
     (if (not (nil? remainder))
         [fp (first remainder)]
         (recur t ps))))
@@ -18,15 +18,16 @@
 (defn process-input [bo3]
     (let [[l1 l2 l3] bo3
           total (. Integer parseInt l1)
-          prices (map #(. Integer parseInt %) (re-seq #"\d+" l3))]
-      (println "total is: " total)
-      (println "prices is: " prices)
-      (println "solution: " (find total prices))))
+          prices (map #(. Integer parseInt %) (re-seq #"\d+" l3))
+          solution (find-match total prices)]
+      (println "total   : " total)
+      (println "prices  : " prices)
+      (println "solution: " solution)))
 
 (defn -main [path]
   (let [oq (new LinkedBlockingQueue)
         _fr (new FileReader path)
         br (rest (line-seq (new BufferedReader _fr)))]
-    (println (map process-input (partition 3 br))))
+    (doall (map process-input (partition 3 br))))
     (shutdown-agents)
   )
