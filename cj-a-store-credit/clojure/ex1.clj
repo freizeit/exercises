@@ -1,34 +1,38 @@
 (ns ex1
-  (:import (java.util.concurrent LinkedBlockingQueue))
   (:import (java.io FileReader BufferedReader)))
 
-(defn calc [vs q]
-  (let [result (reduce + vs)]
-    ;; (println result)
-    (. q put result)
-    result))
+(defn find-match
+  "Finds two prices whose sum equals the credit and returns these as a vector.
+   Otherwise nil is returned."
+  [c ps]
+  (if (< (count ps) 2)  ;; we need to have at least two prices
+    nil ;; no solution
+    (let [fp (first ps) rps (rest ps)
+          remainder (seq (drop-while #(not (= (+ fp %) c)) rps))]
+      (if (not (nil? remainder))
+          [fp (first remainder)]  ;; we have a solution
+          (recur c rps)))))       ;; drop the 1st price and try again
 
-(defn find-match [t pl]
-  (let [fp (first pl) ps (rest pl)
-        remainder (seq (drop-while #(not (= (+ fp %) t)) ps))]
-    (if (not (nil? remainder))
-        [fp (first remainder)]
-        (recur t ps))))
-
-(defn process-input [idx bo3]
-    (let [[l1 l2 l3] bo3
-          total (. Integer parseInt l1)
+(defn solve
+    "Finds a solution for a block of 3 lines that hold the store credit,
+     the number of items in the store and the prices for the latter
+     respectively."
+    [idx bo3]
+    ;; line 1 and 3 hold the store credit and the item prices respectively.
+    (let [[l1 _ l3] bo3
+          credit (. Integer parseInt l1)  ;; convert to int
+          ;; split the string with the prices and convert the latter to int
           prices (map #(. Integer parseInt %) (re-seq #"\d+" l3))
-          solution (find-match total prices)]
+          solution (find-match credit prices)]
       (println "idx     : " idx)
-      (println "total   : " total)
+      (println "credit  : " credit)
       (println "prices  : " prices)
-      (println "solution: " solution)))
+      (println "solution: " solution))
+    )
 
 (defn -main [path]
-  (let [oq (new LinkedBlockingQueue)
-        _fr (new FileReader path)
-        br (rest (line-seq (new BufferedReader _fr)))]
-    (doall (map process-input (iterate inc 1) (partition 3 br))))
+  (let [_fr (new FileReader path)
+        br (rest (line-seq (new BufferedReader _fr)))] ;; ignore 1st line
+    (doall (map solve (iterate inc 1) (partition 3 br))))
     (shutdown-agents)
   )
