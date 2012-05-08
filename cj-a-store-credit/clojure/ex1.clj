@@ -5,7 +5,7 @@
   "Finds two prices whose sum equals the credit and returns these as a vector.
    Otherwise nil is returned."
   [c ps]
-  (if (< (count ps) 2)  ;; we need to have at least two prices
+  (if (< (count ps) 2)  ;; at least two prices are needed for a solution
     nil ;; no solution
     (let [fp (first ps) rps (rest ps)
           remainder (seq (drop-while #(not (= (+ fp %) c)) rps))]
@@ -33,6 +33,8 @@
 (defn -main [path]
   (let [_fr (new FileReader path)
         br (rest (line-seq (new BufferedReader _fr)))] ;; ignore 1st line
+    ;; iterate through the lines in blocks of 3; also pass a 1-based task index
+    ;; to the solve() function. The index will be used to format the result.
     (doall (map solve (iterate inc 1) (partition 3 br))))
     (shutdown-agents)
   )
