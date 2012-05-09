@@ -31,7 +31,9 @@ package main
 
 import (
 	"bufio"
+	"errors"
 	"fmt"
+	"io"
 	"os"
 	"strconv"
 	"strings"
@@ -40,8 +42,8 @@ import (
 
 type Input struct {
 	Index  uint   // input number, 1-based
-	Credit uint   // store credit
-	Items  []uint // store items (prices)
+	Credit int   // store credit
+	Items  []int // store items (prices)
 }
 
 
@@ -52,7 +54,7 @@ type Input struct {
 func ProcessInput(path string, rchanSize uint) (count int, rchan chan string) {
 	file, err := os.Open(path)
 	if err != nil {
-		panic(fmt.Sprintf("can't open file; err=%s\n", err.String()))
+		panic(fmt.Sprintf("can't open file; err=%s\n", err.Error()))
 	}
 	defer file.Close()
 	reader := bufio.NewReader(file)
@@ -68,7 +70,7 @@ func ProcessInput(path string, rchanSize uint) (count int, rchan chan string) {
 		// Read the next 3 non-empty lines from the input file
 		lines, err := next3lines(reader)
 		if err != nil {
-			fmt.Printf("invalid input file; err=%s\n", err.String())
+			fmt.Printf("invalid input file; err=%s\n", err.Error())
 			break
 		}
 		if lines == nil {
@@ -77,16 +79,16 @@ func ProcessInput(path string, rchanSize uint) (count int, rchan chan string) {
 		}
 
 		// Parse the credit (from line 1)
-		credit, err := strconv.Atoui(lines[0])
+		credit, err := strconv.Atoi(lines[0])
 		if err != nil {
-			fmt.Printf("invalid credit '%s'; err=%s\n", lines[0], err.String())
+			fmt.Printf("invalid credit '%s'; err=%s\n", lines[0], err.Error())
 			break
 		}
 
 		// Parse the store item prices (from line 3)
 		items, err := parseItems(lines[2])
 		if err != nil {
-			fmt.Printf("invalid item '%s'; err=%s\n", lines[2], err.String())
+			fmt.Printf("invalid item '%s'; err=%s\n", lines[2], err.Error())
 			break
 		}
 
@@ -99,19 +101,19 @@ func ProcessInput(path string, rchanSize uint) (count int, rchan chan string) {
 
 
 // Parse the line and return a slice with the store items (prices) found.
-func parseItems(line string) (items []uint, err os.Error) {
+func parseItems(line string) (items []int, err error) {
 	// Split the line into words
 	fields := strings.Fields(line)
-	var value uint
+	var value int
 
 	for i, field := range fields {
-		value, err = strconv.Atoui(field)
+		value, err = strconv.Atoi(field)
 		if err != nil {
 			break
 		}
 		// We have a valid store item price at this point.
 		if items == nil {
-			items = make([]uint, len(fields))
+			items = make([]int, len(fields))
 		}
 		items[i] = value
 	}
@@ -122,7 +124,7 @@ func parseItems(line string) (items []uint, err os.Error) {
 // Try reading the next 3 non-empty lines from the 'reader'. In case of succes
 // (we got 3 lines) the error will be 'nil'. If we reach the end of file (i.e.
 // not a single non-empty line could be read) 'lines' will be nil.
-func next3lines(reader *bufio.Reader) (lines []string, err os.Error) {
+func next3lines(reader *bufio.Reader) (lines []string, err error) {
 	i := 0
 	done := false
 	line := ""
@@ -141,7 +143,7 @@ func next3lines(reader *bufio.Reader) (lines []string, err os.Error) {
 		i += 1
 	}
 	if lines != nil && i < 3 {
-		err = os.NewError(fmt.Sprintf("%d lines of input", i))
+		err = errors.New(fmt.Sprintf("%d lines of input", i))
 	}
 	return
 }
@@ -153,8 +155,8 @@ func readLine(reader *bufio.Reader) (string, bool) {
 	done := false
 	line, err := reader.ReadString('\n')
 	if err != nil {
-		if err != os.EOF {
-			panic(fmt.Sprintf("can't read line; err=%s\n", err.String()))
+		if err != io.EOF {
+			panic(fmt.Sprintf("can't read line; err=%s\n", err.Error()))
 		} else {
 			done = true
 		}
