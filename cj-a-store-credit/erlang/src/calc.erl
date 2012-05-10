@@ -58,7 +58,7 @@ do_find_items(C, [{Idx, Price}|Is]) ->
         [] -> do_find_items(C, Is);
         % Match found, return the indices of the 2 store items
         % whose prices add to the granted store credit.
-        [{Other_idx, _}|_] -> { Idx, Other_idx}
+        [{Other_idx, _}|_] -> {Idx, Other_idx}
     end.
 
 
