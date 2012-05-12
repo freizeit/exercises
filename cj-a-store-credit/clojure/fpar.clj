@@ -51,9 +51,9 @@
     ;; iterate through the lines in blocks of 3; also pass a 1-based task index
     ;; to the solve() function. The index will be used to format the result.
         fs (for [sexp (map vector (iterate inc 1) (partition 3 br))] (future (solve sexp)))]
-    (loop [rst fs]
-      (if (not (nil? rst))
-        (let [[done, not-done] (map seq (split-with future-done? rst))]
+    (loop [outstanding fs]
+      (if (not (nil? outstanding))
+        (let [[done, not-done] (map seq (split-with future-done? outstanding))]
           ;;(println "done     : " done)
           ;;(println "not-done : " not-done)
           (doseq [line done] (println @line))
