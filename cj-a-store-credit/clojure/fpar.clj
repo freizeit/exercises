@@ -1,4 +1,4 @@
-(ns ex1
+(ns fpar
   (:import (java.io FileReader BufferedReader)))
 
 
@@ -24,11 +24,12 @@
           ;; no solution for this price, try the remaining ones
           (recur c rps)))))
 
+
 (defn solve
     "Finds a solution for a block of 3 lines that hold the store credit,
      the number of items in the store and the prices for the latter
      respectively."
-    [idx bo3]
+    [[idx bo3]]
     ;; line 1 and 3 hold the store credit and the item prices respectively.
     (let [[l1 _ l3] bo3
           credit (. Integer parseInt l1)  ;; convert to int
@@ -37,26 +38,25 @@
           ;; each price needs an index since only the latter is to appear in
           ;; the solution
           solution (find-match credit (map-indexed vector prices))]
-      ;;(println "idx     : " idx)
-      ;;(println "credit  : " credit)
-      ;;(println "prices  : " prices)
-      ;;(println "solution: " solution)
       (if (nil? solution)
         (format "Case #%d: no solution found" idx)
         (let [[i1 i2] solution]
           (format "Case #%d: %d %d" idx i1 i2)))
     ))
 
+
 (defn -main [path]
   (let [_fr (new FileReader path)
         br (rest (line-seq (new BufferedReader _fr))) ;; ignore 1st line
     ;; iterate through the lines in blocks of 3; also pass a 1-based task index
     ;; to the solve() function. The index will be used to format the result.
-        output (pmap solve (iterate inc 1) (partition 3 br))]
-    (loop [lines output]
-      (if (not (nil? lines))
-        (let [h (first lines) t (rest lines)]
-          (println h)
-          (recur (seq t))))))
+        fs (for [sexp (map vector (iterate inc 1) (partition 3 br))] (future (solve sexp)))]
+    (loop [rst fs]
+      (if (not (nil? rst))
+        (let [[done, not-done] (map seq (split-with future-done? rst))]
+          ;;(println "done     : " done)
+          ;;(println "not-done : " not-done)
+          (doseq [line done] (println @line))
+          (recur not-done)))))
     (shutdown-agents)
   )
