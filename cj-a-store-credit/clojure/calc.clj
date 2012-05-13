@@ -41,3 +41,10 @@
         (let [[i1 i2] solution]
           (format "Case #%d: %d %d" idx i1 i2)))
     ))
+
+
+(defn vsolve
+    "Finds a solution for a block of 3 lines that hold the store credit,
+     the number of items in the store and the prices for the latter
+     respectively."
+    [[idx bo3]] (solve idx bo3))
