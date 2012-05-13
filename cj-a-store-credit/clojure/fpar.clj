@@ -8,7 +8,7 @@
         br (rest (line-seq (new BufferedReader _fr))) ;; ignore 1st line
     ;; iterate through the lines in blocks of 3; also pass a 1-based task index
     ;; to the solve() function. The index will be used to format the result.
-        fs (for [sexp (map vector (iterate inc 1) (partition 3 br))] (future (calc/vsolve sexp)))]
+        fs (for [args (map vector (iterate inc 1) (partition 3 br))] (future (calc/vsolve args)))]
     (loop [outstanding (doall fs)]
       (if (not (nil? outstanding))
         (let [[done, not-done] (map seq (split-with future-done? outstanding))]
