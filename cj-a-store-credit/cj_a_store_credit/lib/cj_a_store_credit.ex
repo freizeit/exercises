@@ -17,18 +17,18 @@ defmodule CjAStoreCredit do
   end
 
   def process_file(source, rppid) do
-    spawn(CjAStoreCredit, :_process_file, [source, 1, [], rppid])
+    spawn(CjAStoreCredit, :_process_file, [source, 1, rppid])
   end
 
-  def _process_file(source, task_num, pids, rppid) do
+  def _process_file(source, task_num, rppid) do
     IO.puts "> process_file, tn: #{task_num}"
-    l3 = Stream.take(source, 3)
+    l3 = Stream.take(source, 3) |> Enum.to_list
     case l3 do
-      [] -> {:ok, pids}
+      [] -> :ok
       [_,_,_] ->
         args = [task_num, l3, rppid]
         pid = spawn(CjAStoreCredit, :process_task, args)
-        _process_file(source, task_num + 1, [pid | pids], rppid)
+        _process_file(source, task_num + 1, rppid)
     end
   end
 
