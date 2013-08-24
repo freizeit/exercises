@@ -2,8 +2,6 @@ Code.require_file "test_helper.exs", __DIR__
 
 defmodule CjAStoreCreditTest do
   use ExUnit.Case, async: true
-  import ExUnit.CaptureIO
-
 
   test "items extracted correctly" do
     assert CjAStoreCredit._items(3, ["101\n","3\n","722 54 47\n"])
@@ -33,21 +31,5 @@ defmodule CjAStoreCreditTest do
     receive do
        message -> assert message == "Case #9: 4 5"
     end
-  end
-  test "process_results" do
-    Enum.each(1..5, fn i -> self <- "result \##{i}" end)
-    assert capture_io(fn -> CjAStoreCredit.process_results(5, 0) end) == "total: 5, done: 0
-result #1
-total: 5, done: 1
-result #2
-total: 5, done: 2
-result #3
-total: 5, done: 3
-result #4
-total: 5, done: 4
-result #5
-total: 5, done: 5
-done!
-"
   end
 end

@@ -21,7 +21,7 @@ defmodule CjAStoreCredit do
   end
 
   def _process_file(source, task_num, rppid) do
-    IO.puts "> process_file, tn: #{task_num}"
+    # IO.puts "> process_file, tn: #{task_num}"
     l3 = Stream.take(source, 3) |> Enum.to_list
     case l3 do
       [] -> :ok
@@ -55,7 +55,7 @@ defmodule CjAStoreCredit do
     end
   end
 
-  # The unsolvable cases: zero credit and a store with less than 2 is
+  # The unsolvable cases: zero credit and a store with less than 2 items
   def _solve(0, _) do :nomatch end
   def _solve(_, []) do :nomatch end
   def _solve(_, [_]) do :nomatch end
@@ -69,10 +69,10 @@ defmodule CjAStoreCredit do
   end
 
   def process_results(result_count, processed) do
-    IO.puts "total: #{result_count}, done: #{processed}"
+    # IO.puts "total: #{result_count}, done: #{processed}"
     case processed >= result_count do
       true ->
-        IO.puts "done!"
+        # IO.puts "done!"
         :ok
       false ->
         receive do
