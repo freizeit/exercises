@@ -4,7 +4,7 @@ defmodule CjAStoreCreditTest do
   use ExUnit.Case, async: true
 
   test "items extracted correctly" do
-    assert CjAStoreCredit._items(3, "722 54 47\n")
+    assert CjAStoreCredit._items("722 54 47\n")
       == [{1,722},{2,54},{3,47}]
   end
   test "_eval with :nomatch" do
@@ -14,16 +14,16 @@ defmodule CjAStoreCreditTest do
     assert CjAStoreCredit._eval({:match, {11, 23}}, 88) == "Case #88: 11 23"
   end
   test "_solve with zero credit" do
-    assert CjAStoreCredit._solve(0, [{1,722},{2,54},{3,47}]) == :nomatch
+    assert CjAStoreCredit._solve([{1,722},{2,54},{3,47}], 0) == :nomatch
   end
   test "_solve with empty items list" do
-    assert CjAStoreCredit._solve(77, []) == :nomatch
+    assert CjAStoreCredit._solve([], 77) == :nomatch
   end
   test "_solve with a single element items list" do
-    assert CjAStoreCredit._solve(78, [{1,722}]) == :nomatch
+    assert CjAStoreCredit._solve([{1,722}], 78) == :nomatch
   end
   test "_solve with proper args" do
-    assert CjAStoreCredit._solve(101, [{1,722},{2,600},{3,905},{4,54},{5,47}])
+    assert CjAStoreCredit._solve([{1,722},{2,600},{3,905},{4,54},{5,47}], 101)
       == {:match,{4,5}}
   end
   test "process_task with proper args" do
