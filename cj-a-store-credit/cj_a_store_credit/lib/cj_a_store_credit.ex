@@ -4,13 +4,16 @@ defmodule CjAStoreCredit do
   Solution to the google code jam 'Store Credit' problem.
   Please see
       http://code.google.com/codejam/contest/dashboard?c=351101#s=p0
-  for details.
-
-  Example problem:
+  for details. For each test case there will be:
+    - one line containing the value C, the amount of credit you have at the
+      store.
+    - one line containing the value I, the number of items in the store.
+    - one line containing a space separated list of I integers. Each integer P
+      indicates the price of an item in the store.
+  Example:
     200
     7
     150 24 79 50 88 345 3
-    ***       **
 
   Solution:
     "Case #2: 1 4"
@@ -41,12 +44,6 @@ defmodule CjAStoreCredit do
 
   @doc """
   Processes a file where blocks of 3 lines define a task or test case.
-  For each test case there will be:
-    - one line containing the value C, the amount of credit you have at the
-      store.
-    - one line containing the value I, the number of items in the store.
-    - one line containing a space separated list of I integers. Each integer P
-      indicates the price of an item in the store.
   Each test case will have exactly one solution.
   Please note: each test case is processed in a separate process.
   """
