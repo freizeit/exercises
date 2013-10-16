@@ -1,51 +1,76 @@
 defmodule CjAStoreCredit do
+
+  @doc """
+  Solution to the google code jam 'Store Credit' problem.
+  Please see
+      http://code.google.com/codejam/contest/dashboard?c=351101#s=p0
+  for details.
+  """
   def main(args) do
     {opts, _, _} = OptionParser.parse(args)
     # IO.inspect args
     {_, path} = List.keyfind(opts, :file, 0)
     { :ok, device } = File.open(path)
     source = IO.stream(device, :line)
-    _num_rec = Stream.take(source, 1)
-    # IO.inspect _num_rec
-    {num_rec, _} = String.to_integer(Enum.at(_num_rec, 0))
+    num_rec = Enum.take(source, 1) |> Enum.first |> _s2i
     # IO.inspect num_rec
 
     # process the file in a separate process
-    process_file(source, self)
+    spawn(CjAStoreCredit, :process_file, [source, 1, self])
 
     process_results(num_rec, 0)
   end
 
-  def process_file(source, rppid) do
-    spawn(CjAStoreCredit, :_process_file, [source, 1, rppid])
-  end
-
-  def _process_file(source, task_num, rppid) do
+  @doc """
+  Processes a file where blocks of 3 lines define a task or test case.
+  For each test case there will be:
+    - one line containing the value C, the amount of credit you have at the
+      store.
+    - one line containing the value I, the number of items in the store.
+    - one line containing a space separated list of I integers. Each integer P
+      indicates the price of an item in the store.
+  Each test case will have exactly one solution.
+  Please note: each test case is processed in a separate process.
+  """
+  def process_file(source, task_num, rppid) do
     # IO.puts "> process_file, tn: #{task_num}"
-    l3 = Stream.take(source, 3) |> Enum.to_list
+    l3 = Enum.take(source, 3)
     case l3 do
-      [] -> :ok
       [_,_,_] ->
-        args = [task_num, l3, rppid]
-        pid = spawn(CjAStoreCredit, :process_task, args)
-        _process_file(source, task_num + 1, rppid)
+        spawn(CjAStoreCredit, :process_task, [task_num, l3, rppid])
+        process_file(source, task_num + 1, rppid)
+      [] -> :ok
     end
   end
 
-  def process_task(task_num, l3, rppid) do
-    {credit, _} = String.to_integer(Enum.at(l3, 0))
-    {item_count, _} = String.to_integer(Enum.at(l3, 1))
-    is = _items(item_count, l3)
-    result = _solve(credit, is) |> _eval(task_num)
+  @doc """
+  Extract the item prices and search for a solution.
+  """
+  def process_task(task_num, [l1, _, l3], rppid) do
+    result = l3 |> _items |> _solve(_s2i(l1)) |> _eval(task_num)
     rppid <- result
   end
 
-  def _items(item_count, l3) do
-    is = Enum.at(l3, 2) |> String.split |>
-         Enum.filter(fn(x) -> String.length(x) > 0 end)
-    # IO.inspect is
-    iis = Enum.map(is, fn i -> {ii, _} = String.to_integer(i); ii end)
-    Enum.zip(1..item_count, iis)
+  @doc """
+  Convert a string to integer.
+  """
+  def _s2i(str) do
+    {value, _} = String.to_integer(str); value
+  end
+
+
+  @doc """
+  Converts a string with item pricess to a list with 2-tuples where the first
+  datum is a (one-based) index and the second is an item price.
+  Input: "5 75 25"
+  Output: [{1, 5}, {2, 75}, {3, 25}]
+  """
+  def _items(l3) do
+    is = l3 |> String.split
+            |> Enum.filter(fn(x) -> String.length(x) > 0 end)
+            |> Enum.map(&_s2i/1)
+            |> Enum.with_index
+    lc {v, i} inlist is, do: {i+1, v}
   end
 
   def _eval(result, task_num) do
@@ -56,28 +81,35 @@ defmodule CjAStoreCredit do
   end
 
   # The unsolvable cases: zero credit and a store with less than 2 items
-  def _solve(0, _) do :nomatch end
-  def _solve(_, []) do :nomatch end
-  def _solve(_, [_]) do :nomatch end
-  def _solve(credit, [{idx, i} | is]) do
-    rest = Enum.drop_while(is,
-            fn { _, oi } -> i + oi != credit end)
-    case rest do
-      [] -> _solve(credit, is) # no solution for this prefix
+  def _solve(_, 0) do :nomatch end
+  def _solve([], _) do :nomatch end
+  def _solve([_], _) do :nomatch end
+  @doc """
+  Look for 2 prices whose sum is equal to the credit.
+  """
+  def _solve([{idx, price} | rest], credit) do
+    outcome = Enum.drop_while(
+      rest, fn { _, other } -> price + other != credit end)
+    case outcome do
+      [] -> _solve(rest, credit) # no solution for this item/price
       [{ oidx, _ } | _] -> {:match, { idx, oidx}}
     end
   end
 
-  def process_results(result_count, processed) do
-    # IO.puts "total: #{result_count}, done: #{processed}"
-    case processed >= result_count do
-      true ->
+
+  @doc """
+  Keep receiving and printing results until all is done.
+  """
+  def process_results(total, processed) do
+    # IO.puts "total: #{total}, done: #{processed}"
+    case processed < total do
+      false ->
         # IO.puts "done!"
         :ok
-      false ->
+      true ->
         receive do
            message -> IO.puts message
-           process_results(result_count, processed + 1)
+           process_results(total, processed + 1)
         end
     end
   end

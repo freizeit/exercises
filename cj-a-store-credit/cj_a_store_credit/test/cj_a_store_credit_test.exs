@@ -4,7 +4,7 @@ defmodule CjAStoreCreditTest do
   use ExUnit.Case, async: true
 
   test "items extracted correctly" do
-    assert CjAStoreCredit._items(3, ["101\n","3\n","722 54 47\n"])
+    assert CjAStoreCredit._items(3, "722 54 47\n")
       == [{1,722},{2,54},{3,47}]
   end
   test "_eval with :nomatch" do
