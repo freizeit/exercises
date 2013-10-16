@@ -21,6 +21,15 @@ defmodule CjAStoreCredit do
     process_results(num_rec, 0)
   end
 
+
+  @doc """
+  Convert a string to integer.
+  """
+  def _s2i(str) do
+    {value, _} = String.to_integer(str); value
+  end
+
+
   @doc """
   Processes a file where blocks of 3 lines define a task or test case.
   For each test case there will be:
@@ -34,14 +43,15 @@ defmodule CjAStoreCredit do
   """
   def process_file(source, task_num, rppid) do
     # IO.puts "> process_file, tn: #{task_num}"
-    l3 = Enum.take(source, 3)
-    case l3 do
+    bo3 = Enum.take(source, 3)
+    case bo3 do
       [_,_,_] ->
-        spawn(CjAStoreCredit, :process_task, [task_num, l3, rppid])
+        spawn(CjAStoreCredit, :process_task, [task_num, bo3, rppid])
         process_file(source, task_num + 1, rppid)
       [] -> :ok
     end
   end
+
 
   @doc """
   Extract the item prices and search for a solution.
@@ -49,13 +59,6 @@ defmodule CjAStoreCredit do
   def process_task(task_num, [l1, _, l3], rppid) do
     result = l3 |> _items |> _solve(_s2i(l1)) |> _eval(task_num)
     rppid <- result
-  end
-
-  @doc """
-  Convert a string to integer.
-  """
-  def _s2i(str) do
-    {value, _} = String.to_integer(str); value
   end
 
 
@@ -73,12 +76,6 @@ defmodule CjAStoreCredit do
     lc {v, i} inlist is, do: {i+1, v}
   end
 
-  def _eval(result, task_num) do
-    case result do
-      :nomatch -> "No solution for case \##{task_num}"
-      {:match, {i1, i2}} -> "Case \##{task_num}: #{i1} #{i2}"
-    end
-  end
 
   # The unsolvable cases: zero credit and a store with less than 2 items
   def _solve(_, 0) do :nomatch end
@@ -93,6 +90,14 @@ defmodule CjAStoreCredit do
     case outcome do
       [] -> _solve(rest, credit) # no solution for this item/price
       [{ oidx, _ } | _] -> {:match, { idx, oidx}}
+    end
+  end
+
+
+  def _eval(result, task_num) do
+    case result do
+      :nomatch -> "No solution for case \##{task_num}"
+      {:match, {i1, i2}} -> "Case \##{task_num}: #{i1} #{i2}"
     end
   end
 
