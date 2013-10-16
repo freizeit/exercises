@@ -5,6 +5,15 @@ defmodule CjAStoreCredit do
   Please see
       http://code.google.com/codejam/contest/dashboard?c=351101#s=p0
   for details.
+
+  Example problem:
+    200
+    7
+    150 24 79 50 88 345 3
+    ***       **
+
+  Solution:
+    "Case #2: 1 4"
   """
   def main(args) do
     {opts, _, _} = OptionParser.parse(args)
