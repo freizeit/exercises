@@ -38,7 +38,7 @@ defmodule CjAStoreCredit do
   Convert a string to integer.
   """
   def _s2i(str) do
-    {value, _} = String.to_integer(str); value
+    {value, _} = Integer.parse(str); value
   end
 
 
@@ -63,7 +63,7 @@ defmodule CjAStoreCredit do
   Extract the item prices and search for a solution.
   """
   def process_task(task_num, [l1, _, l3], rppid) do
-    result = l3 |> _items |> _solve(_s2i(l1)) |> _eval(task_num)
+    result = l3 |> _items |> Logic.solve(_s2i(l1), task_num)
     rppid <- result
   end
 
@@ -80,31 +80,6 @@ defmodule CjAStoreCredit do
             |> Enum.map(&_s2i/1)
             |> Enum.with_index
     lc {v, i} inlist is, do: {i+1, v}
-  end
-
-
-  # The unsolvable cases: zero credit and a store with less than 2 items
-  def _solve(_, 0) do :nomatch end
-  def _solve([], _) do :nomatch end
-  def _solve([_], _) do :nomatch end
-  @doc """
-  Look for 2 prices whose sum is equal to the credit.
-  """
-  def _solve([{idx, price} | rest], credit) do
-    outcome = Enum.drop_while(
-      rest, fn { _, other } -> price + other != credit end)
-    case outcome do
-      [] -> _solve(rest, credit) # no solution for this item/price
-      [{ oidx, _ } | _] -> {:match, { idx, oidx}}
-    end
-  end
-
-
-  def _eval(result, task_num) do
-    case result do
-      :nomatch -> "No solution for case \##{task_num}"
-      {:match, {i1, i2}} -> "Case \##{task_num}: #{i1} #{i2}"
-    end
   end
 
 
