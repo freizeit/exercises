@@ -35,23 +35,15 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"strconv"
 	"strings"
 )
-
-
-type Input struct {
-	Index  uint   // input number, 1-based
-	Credit int   // store credit
-	Items  []int // store items (prices)
-}
 
 
 // Convert the data contained in the file with the given 'path' to
 // 'Input' structs and start a go routine for each of the latter. Return
 // the number of inputs processed as well as the channel from which to
 // read the results.
-func ProcessInput(path string, rchanSize uint) (count int, rchan chan string) {
+func ProcessInput(path string, rchanSize uint) (count uint, rchan chan string) {
 	file, err := os.Open(path)
 	if err != nil {
 		panic(fmt.Sprintf("can't open file; err=%s\n", err.Error()))
@@ -78,44 +70,8 @@ func ProcessInput(path string, rchanSize uint) (count int, rchan chan string) {
 			break;
 		}
 
-		// Parse the credit (from line 1)
-		credit, err := strconv.Atoi(lines[0])
-		if err != nil {
-			fmt.Printf("invalid credit '%s'; err=%s\n", lines[0], err.Error())
-			break
-		}
-
-		// Parse the store item prices (from line 3)
-		items, err := parseItems(lines[2])
-		if err != nil {
-			fmt.Printf("invalid item '%s'; err=%s\n", lines[2], err.Error())
-			break
-		}
-
 		count += 1
-		input := Input{uint(count), credit, items}
-		go FindItems(input, rchan)
-	}
-	return
-}
-
-
-// Parse the line and return a slice with the store items (prices) found.
-func parseItems(line string) (items []int, err error) {
-	// Split the line into words
-	fields := strings.Fields(line)
-	var value int
-
-	for i, field := range fields {
-		value, err = strconv.Atoi(field)
-		if err != nil {
-			break
-		}
-		// We have a valid store item price at this point.
-		if items == nil {
-			items = make([]int, len(fields))
-		}
-		items[i] = value
+		go FindItems(count, lines, rchan)
 	}
 	return
 }
