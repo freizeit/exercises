@@ -74,6 +74,8 @@ func parseItems(line string) (items []int, err error) {
 }
 
 
+// Parse a block of 3 lines containing the credit, the number of items and
+// the item prices.
 func parse(count uint, lines []string) (*Input, error) {
 	// Parse the credit (from line 1)
 	credit, err := strconv.Atoi(lines[0])
@@ -89,6 +91,6 @@ func parse(count uint, lines []string) (*Input, error) {
 		return nil, err
 	}
 
-	input := Input{uint(count), credit, items}
+	input := Input{count, credit, items}
 	return &input, nil
 }
