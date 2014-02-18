@@ -24,7 +24,7 @@ defmodule CjAStoreCredit do
     {_, path} = List.keyfind(opts, :file, 0)
     { :ok, device } = File.open(path)
     source = IO.stream(device, :line)
-    num_rec = Enum.take(source, 1) |> Enum.first |> _s2i
+    num_rec = Enum.take(source, 1) |> Enum.at(0) |> _s2i
     # IO.inspect num_rec
 
     # process the file in a separate process
@@ -64,7 +64,7 @@ defmodule CjAStoreCredit do
   """
   def process_task(task_num, [l1, _, l3], rppid) do
     result = l3 |> _items |> Logic.solve(_s2i(l1), task_num)
-    rppid <- result
+    send rppid, result
   end
 
 
