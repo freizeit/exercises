@@ -51,10 +51,10 @@ fn main() {
 }
 
 
-fn do_work(inp: &str) {
+fn do_work(input_file_path: &str) {
     let (port, chan) = SharedChan::new();
 
-    let path = Path::new(inp);
+    let path = Path::new(input_file_path);
     let mut file = BufferedReader::new(File::open(&path));
     let mut line_iterator = file.lines();
 
