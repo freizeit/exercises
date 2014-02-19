@@ -1,3 +1,19 @@
+/*
+	A program solving
+
+		http://code.google.com/codejam/contest/dashboard?c=351101#s=p0
+
+	The test cases are contained in a file whose path is to be specified on
+	the command line.
+
+	Example:
+
+		./main -f ../A-large-practice.in
+
+	This will process the test cases contained in the 'A-large-practice.in'
+*/
+
+
 extern mod extra;
 use extra::getopts::{reqopt,optflag,getopts,Opt};
 
@@ -7,6 +23,7 @@ use std::io::buffered::BufferedReader;
 use std::os;
 
 mod calculate;
+
 
 fn main() {
     let args = os::args();
@@ -30,32 +47,26 @@ fn main() {
         return;
     }
     let input = matches.opt_str("f").unwrap();
-    // println!("input = {}", input);
     do_work(input);
 }
 
 
 fn do_work(inp: &str) {
     let (port, chan) = SharedChan::new();
+
     let path = Path::new(inp);
     let mut file = BufferedReader::new(File::open(&path));
     let mut line_iterator = file.lines();
 
-    let num_lines = line_iterator.next().unwrap();
-    // println!("1/num_lines = {}", num_lines);
-    let num_lines: uint  = from_str(num_lines.trim()).unwrap();
-    // println!("2/num_lines = {}", num_lines);
+    let num_tasks = line_iterator.next().unwrap();
+    let num_tasks: uint  = from_str(num_tasks.trim()).unwrap();
 
     let mut i: uint = 0;
 
-    while i < num_lines {
-        // println!("i = {}", i);
+    while i < num_tasks {
         let l1 = line_iterator.next().unwrap();
-        // println!("l1 = {}", l1);
         let l2 = line_iterator.next().unwrap();
-        // println!("l2 = {}", l2);
         let l3 = line_iterator.next().unwrap();
-        // println!("l3 = {}", l3);
         let my_chan = chan.clone();
         let i_is_mutable_and_cannot_be_passed = i + 1;
 
@@ -68,7 +79,7 @@ fn do_work(inp: &str) {
 
     let mut results = port.iter();
     i = 0;
-    while i < num_lines {
+    while i < num_tasks {
         let res = results.next().unwrap();
         println!("{}", res);
         i += 1;
