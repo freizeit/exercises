@@ -5,6 +5,8 @@
 
 
 pub fn find_items(i: uint, l1: &str, _l2: &str, l3: &str) -> ~str {
+    //! Massage the parameters and call `find_solution()`.
+    //!
     let credit: uint  = from_str(l1).unwrap();
     let sitems = l3.split(' ');
     let items: ~[uint] = sitems.map(|x| from_str::<uint>(x).unwrap()).collect();
@@ -14,6 +16,11 @@ pub fn find_items(i: uint, l1: &str, _l2: &str, l3: &str) -> ~str {
 
 
 fn find_solution(i: uint, credit: uint, items: &[uint]) -> ~str {
+    //! Look for 2 store items whose sum equals the credit amount.
+    //!
+    //! The solution may or may not exist. The result is returned as an
+    //! appropriately formatted string.
+
     let mut solution = format!("Case \\#{}: no solution found", i);
     let mut x: uint = 0;
     let mut y: uint;

@@ -2,18 +2,18 @@
 #[crate_type="bin"];
 
 
-//!    A program solving
+//! A program solving
 //!
-//!        http://code.google.com/codejam/contest/dashboard?c=351101#s=p0
+//!     http://code.google.com/codejam/contest/dashboard?c=351101#s=p0
 //!
-//!    The test cases are contained in a file whose path is to be specified on
-//!    the command line.
+//! The test cases are contained in a file whose path is to be specified on
+//! the command line.
 //!
-//!    Example:
+//! Example:
 //!
-//!        ./main -f ../A-large-practice.in
+//!     ./main -f ../A-large-practice.in
 //!
-//!    This will process the test cases contained in the 'A-large-practice.in'
+//! This will process the test cases contained in the 'A-large-practice.in'
 
 
 extern mod extra;
