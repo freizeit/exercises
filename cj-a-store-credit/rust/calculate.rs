@@ -1,22 +1,7 @@
-/*
-	A program solving
-
-		http://code.google.com/codejam/contest/dashboard?c=351101#s=p0
-
-	The test cases are contained in a file whose path is to be specified on
-	the command line.
-
-	Example:
-
-		./main -f ../A-large-practice.in
-
-	This will process the test cases contained in the 'A-large-practice.in'
-*/
-
-
-/*
- * This module contains the logic for solving the "store credit" problem.
- */
+//!    This module provides logic for solving the credit store problem.
+//!    Please see the link below for details.
+//!
+//!        http://code.google.com/codejam/contest/dashboard?c=351101#s=p0
 
 
 pub fn find_items(i: uint, l1: &str, _l2: &str, l3: &str) -> ~str {

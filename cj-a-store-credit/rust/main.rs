@@ -1,17 +1,19 @@
-/*
-	A program solving
+#[crate_id = "main"];
+#[crate_type="bin"];
 
-		http://code.google.com/codejam/contest/dashboard?c=351101#s=p0
 
-	The test cases are contained in a file whose path is to be specified on
-	the command line.
-
-	Example:
-
-		./main -f ../A-large-practice.in
-
-	This will process the test cases contained in the 'A-large-practice.in'
-*/
+//!    A program solving
+//!
+//!        http://code.google.com/codejam/contest/dashboard?c=351101#s=p0
+//!
+//!    The test cases are contained in a file whose path is to be specified on
+//!    the command line.
+//!
+//!    Example:
+//!
+//!        ./main -f ../A-large-practice.in
+//!
+//!    This will process the test cases contained in the 'A-large-practice.in'
 
 
 extern mod extra;
@@ -26,6 +28,8 @@ mod calculate;
 
 
 fn main() {
+    //! `main()` function, handles command line args and gets the job going.
+
     let args = os::args();
 
     let program = args[0].clone();
@@ -52,6 +56,23 @@ fn main() {
 
 
 fn do_work(input_file_path: &str) {
+    //! Computes results for credit store problems in a file and prints them.
+    //!
+    //! Each 3-line block in the input file (located at `input_file_path`)
+    //! constitutes a credit store problem.
+    //!
+    //! This function
+    //!     - opens the input file
+    //!     - reads the first line (the number of credit store problems
+    //!       contained in the file)
+    //!     - iterates over the file contents, reading 3-line blocks and
+    //!       spawning a separate task for each of these.
+    //!
+    //! Please note that the tasks write results to the shared channel
+    //! (`my_chan`) instance.
+    //! After all tasks have been spawned the results are read from the
+    //! associated `port`.
+
     let (port, chan) = SharedChan::new();
 
     let path = Path::new(input_file_path);
