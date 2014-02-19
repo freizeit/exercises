@@ -1,7 +1,7 @@
-//!    This module provides logic for solving the credit store problem.
-//!    Please see the link below for details.
+//! This module provides logic for solving the credit store problem.
+//! Please see the link below for details:
 //!
-//!        http://code.google.com/codejam/contest/dashboard?c=351101#s=p0
+//!     http://code.google.com/codejam/contest/dashboard?c=351101#s=p0
 
 
 pub fn find_items(i: uint, l1: &str, _l2: &str, l3: &str) -> ~str {
