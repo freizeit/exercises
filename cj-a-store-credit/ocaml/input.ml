@@ -1,7 +1,7 @@
 open Core.Std
 
 
-let rec read_N_lines file n lines =
+let rec read_N_lines_ file n blen lines =
   if n = 0 then List.rev lines
   else
     let maybe_line = In_channel.input_line file in
@@ -9,14 +9,19 @@ let rec read_N_lines file n lines =
     | None ->
       (* end of input? *)
       if lines = [] then lines
-      else (* input cut off in the middle of a 3-line block *)
-        raise (Failure "Malformed input, failed to read block of 3 lines")
+      else (* input cut off in the middle of a n-line block *)
+        let msg = "Failed to read " ^ string_of_int blen ^ "-line block" in
+        raise (Failure msg)
     | Some line ->
-      read_N_lines file (n - 1) (line :: lines)
+      read_N_lines_ file (n - 1) blen (line :: lines)
+
+
+let read_N_lines file n =
+  read_N_lines_ file n n []
 
 
 let rec process_lines file =
-  let block = read_N_lines file 3 [] in
+  let block = read_N_lines file 3 in
   if block = [] then
     ()
   else begin
