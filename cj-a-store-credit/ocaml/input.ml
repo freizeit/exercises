@@ -17,7 +17,8 @@ let rec read_N_lines_ file n blen lines =
 
 
 let read_N_lines file n =
-  read_N_lines_ file n n []
+  if n <= 0 then raise (Failure "block length must be > 0")
+  else read_N_lines_ file n n []
 
 
 let rec process_lines file =
