@@ -45,9 +45,9 @@ let test_invalid_block_length _ctxt =
 
 let suite =
 "read_N_lines ">:::
-  ["happy case: reads 3-line block">:: test_happy_case;
-   "happy case: empty file">:: test_happy_case;
-   "failure   : incomplete 3-line block">:: test_incomplete_block;
+  ["happy case: 3-line block">:: test_happy_case;
+   "happy case: empty file">:: test_empty_file;
+   "failure   : incomplete 4-line block">:: test_incomplete_block;
    "failure   : invalid block length">:: test_invalid_block_length]
 
 
