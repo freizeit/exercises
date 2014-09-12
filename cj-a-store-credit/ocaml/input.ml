@@ -21,16 +21,19 @@ let read_N_lines file n =
   else read_N_lines_ file n n []
 
 
-let rec process_lines file =
+let rec process_lines' file n =
   let block = read_N_lines file 3 in
   if block = [] then
     ()
   else begin
-    Logic.process_block block;
+    Logic.process_block block n;
     (* Keep going until we consume all of the input file *)
-    process_lines file
+    process_lines' file (n + 1)
   end
 
+
+let process_lines file =
+  process_lines' file 1
 
 let process_file path () =
   In_channel.with_file path ~f:(fun file ->
