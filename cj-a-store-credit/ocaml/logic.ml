@@ -19,7 +19,7 @@ open Core.Std
  *)
 let rec solve credit indexed_prices n =
   match indexed_prices with
-  | [] -> (n, None)
+  | [] -> (n, None) (* no solution *)
   | ihp :: rest ->
     let (fidx, hp) = ihp in
     let result = List.drop_while rest ~f:(fun (_, p) -> (p + hp) <> credit) in
@@ -57,7 +57,4 @@ let process_block' lines n =
    @param lines 3 lines comprising a "Store Credit" record
    @param n 1-based record index (needed for the result string)
  *)
-let process_block lines n =
-  begin
-    print_endline (process_block' lines n)
-  end
+let process_block lines n = print_endline (process_block' lines n)
