@@ -34,7 +34,5 @@ let process_block' lines n =
 
 let process_block lines n =
   begin
-    List.iter ~f:print_endline lines;
-    print_endline "--";
     print_endline (process_block' lines n)
   end
