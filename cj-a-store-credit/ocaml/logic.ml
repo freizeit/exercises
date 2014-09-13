@@ -1,6 +1,22 @@
+(** Logic needed to process "Store Credit" files. Please @see <https://code.google.com/codejam/contest/dashboard?c=351101#s=p0> the google code jam page for more details *)
+
+
 open Core.Std
 
 
+(** Looks for a solution to the "Store record" problem: a store issued a credit
+  to a customer and the latter would like to spend all of it in a single
+  purchase by finding 2 items so that the sum of their prices exactly matches
+  the credit.
+   @param credit the credit issued by the store
+   @param indexed_prices list of Int 2-tuples where each tuple holds the
+    following data: (1-based price index, price)
+   @param n 1-based index of the "Store record" in question
+   @return a 2-tuple where the first datum is the index of the store record
+    and the second is an Option that is either None if no solution could be
+    found or Some (pi1, pi2) where pi1 and pi2 are the indices of the prices
+    found.
+ *)
 let rec solve credit indexed_prices n =
   match indexed_prices with
   | [] -> (n, None)
@@ -13,6 +29,11 @@ let rec solve credit indexed_prices n =
       (sidx, _) :: _  -> (n, Some (fidx, sidx))
 
 
+(** Turns a string with prices into a list of prices (converted to integers).
+   @param l3 3rd line of a "Store Credit" record (containg the prices)
+   @return list of Int 2-tuples where each tuple holds the following data:
+     (1-based price index, price)
+ *)
 let indexed_prices l3 =
   let prices = List.map ~f:Int.of_string (String.split ~on:' ' l3) in
   let num_prices = (List.length prices) + 1 in
@@ -32,6 +53,10 @@ let process_block' lines n =
   format_result result
 
 
+(** Process a "Store Credit" record and print the result to stdout.
+   @param lines 3 lines comprising a "Store Credit" record
+   @param n 1-based record index (needed for the result string)
+ *)
 let process_block lines n =
   begin
     print_endline (process_block' lines n)
