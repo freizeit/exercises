@@ -3,19 +3,19 @@
 
 		http://code.google.com/codejam/contest/dashboard?c=351101#s=p0
 
+  A store issues a credit to a customer and the latter would like to spend
+  all of it in a single purchase by finding 2 store items so that the sum of
+  their prices exactly matches the credit.
+
 	The test cases are contained in a file whose path is to be specified on
-	the command line. The caller may also specify the number of CPU cores to
-	use (default: 2).
+	the command line.
 
 	Example:
 
-		./main -f A-large-practice.in -n 3
+		./main.native ../A-large-practice.in
 
-	This will process the test cases contained in the 'A-large-practice.in'
-	file and use three CPU cores.
-
-	Please note: the results will only be ordered correctly for n=1. For
-	n > 1 the results are output in random order.
+	This will process the test cases contained in the '../A-large-practice.in'
+	file.
 *)
 
 
