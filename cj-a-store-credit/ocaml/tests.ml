@@ -86,8 +86,8 @@ let suite =
 "Input, Logic functions ">:::
   ["happy case: 3-line block">:: test_happy_case;
    "happy case: empty file">:: test_empty_file;
-   "failure   : incomplete 4-line block">:: test_incomplete_block;
-   "failure   : invalid block length">:: test_invalid_block_length;
+   "failure: incomplete 4-line block">:: test_incomplete_block;
+   "failure: invalid block length">:: test_invalid_block_length;
    "format_process_block' with no solution">:: test_process_block'_no_solution;
    "format_process_block' with 1 7 9">:: test_process_block'_short;
    "format_result with None">:: test_format_result_None;
