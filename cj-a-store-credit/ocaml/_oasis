@@ -1,0 +1,23 @@
+Name: store-credit-solver
+Version: 0.1
+Synopsis: Solves the store credit problem (http://goo.gl/hbRO9)
+Authors: Muharem Hrnjadovic <muharem@linux.com>
+License: LGPL with OCaml linking exception
+
+Description: A program that solves the store credit problem (https://code.google.com/codejam/contest/dashboard?c=351101#s=p0)
+Homepage: https://github.com/freizeit/exercises
+
+OASISFormat: 0.4
+BuildTools: ocamlbuild
+Plugins: META (0.4), DevFiles (0.4)
+
+Executable "scs"
+  Path: src
+  MainIs: main.ml
+  BuildDepends: core, threads
+
+SourceRepository master
+  Type: git
+  Location: https://github.com/freizeit/exercises
+  Branch: master
+  Browser: https://github.com/freizeit/exercises
