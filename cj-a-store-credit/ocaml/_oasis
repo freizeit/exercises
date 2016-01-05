@@ -11,13 +11,31 @@ OASISFormat: 0.4
 BuildTools: ocamlbuild
 Plugins: META (0.4), DevFiles (0.4)
 
-Executable "scs"
-  Path: src
-  MainIs: main.ml
-  BuildDepends: core, threads
-
 SourceRepository master
   Type: git
   Location: https://github.com/freizeit/exercises
   Branch: master
   Browser: https://github.com/freizeit/exercises
+
+Executable "scs"
+  Path: src
+  MainIs: main.ml
+  BuildDepends: core, threads
+
+Library "lib_scs"
+  Path: src
+  Modules: Main, Logic, Input
+
+Executable "test_scs"
+  Path: test
+  MainIs: tests.ml
+  Build$: flag(tests)
+  CompiledObject: best
+  Install: false
+  BuildDepends: core, threads, oUnit, lib_scs
+
+Test "test_scs"
+  Run$: flag(tests)
+  TestTools: test_scs
+  Command: $test_scs
+  WorkingDirectory: test
