@@ -29,11 +29,13 @@ Library "lib_scs"
 Executable "test_scs"
   Path: test
   MainIs: tests.ml
+  Build$: flag(tests)
   CompiledObject: best
   Install: false
   BuildDepends: core, threads, oUnit, lib_scs
 
 Test "test_scs"
+  Run$: flag(tests)
   TestTools: test_scs
   Command: $test_scs
   WorkingDirectory: test

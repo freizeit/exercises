@@ -36,8 +36,7 @@ let rec solve credit indexed_prices n =
  *)
 let indexed_prices l3 =
   let prices = List.map ~f:Int.of_string (String.split ~on:' ' l3) in
-  let num_prices = (List.length prices) + 1 in
-  List.zip_exn (List.range 1 num_prices) prices
+  List.zip_exn (List.range 1 (List.length prices + 1)) prices
 
 
 let format_result = function
@@ -50,7 +49,9 @@ let format_result = function
    @param n 1-based record index (needed for the result string)
  *)
 let process_block lines n =
-  let l1 :: _ :: l3 :: [] = lines in
-  let credit = Int.of_string l1 in
-  let prices = indexed_prices l3 in
-  format_result (solve credit prices n)
+  match lines with
+  | [] | [_] | [_; _] -> raise (Failure "Block shorter than 3 lines")
+  | l1 :: _ :: l3 :: _ ->
+    let credit = Int.of_string l1 in
+    let prices = indexed_prices l3 in
+    format_result (solve credit prices n)

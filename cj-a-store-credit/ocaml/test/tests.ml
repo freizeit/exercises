@@ -81,6 +81,18 @@ let test_process_block_no_solution _ctxt =
   let result = Logic.process_block lines 19 in
   assert_equal ~printer:(fun x -> x) "Case #19: no solution found" result
 
+let test_process_block_no_lines _ctxt =
+  assert_raises (Failure "Block shorter than 3 lines")
+                (fun _ -> Logic.process_block [] (-1))
+
+let test_process_block_1_line _ctxt =
+  assert_raises (Failure "Block shorter than 3 lines")
+                (fun _ -> Logic.process_block ["1"] (-1))
+
+let test_process_block_2_lines _ctxt =
+  assert_raises (Failure "Block shorter than 3 lines")
+                (fun _ -> Logic.process_block ["1"; "2"] (-1))
+
 
 let suite =
 "Input, Logic functions ">:::
@@ -88,8 +100,11 @@ let suite =
    "happy case: empty file">:: test_empty_file;
    "failure: incomplete 4-line block">:: test_incomplete_block;
    "failure: invalid block length">:: test_invalid_block_length;
-   "format_process_block' with no solution">:: test_process_block_no_solution;
-   "format_process_block' with 1 7 9">:: test_process_block_short;
+   "process_block with no solution">:: test_process_block_no_solution;
+   "process_block with 1 7 9">:: test_process_block_short;
+   "process_block with no lines">:: test_process_block_no_lines;
+   "process_block with 1 line">:: test_process_block_1_line;
+   "process_block with 2 lines">:: test_process_block_2_lines;
    "format_result with None">:: test_format_result_None;
    "format_result with Some">:: test_format_result_Some;
    "indexed_prices with len 2">:: test_indexed_prices_len_2;
