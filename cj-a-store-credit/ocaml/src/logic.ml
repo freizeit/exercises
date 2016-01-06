@@ -11,22 +11,21 @@ open Core.Std
    @param credit the credit issued by the store
    @param indexed_prices list of Int 2-tuples where each tuple holds the
     following data: (1-based price index, price)
-   @param n 1-based index of the "Store record" in question
+   @param sri 1-based index of the "Store record" in question
    @return a 2-tuple where the first datum is the index of the store record
     and the second is an Option that is either None if no solution could be
     found or Some (pi1, pi2) where pi1 and pi2 are the indices of the prices
     found.
  *)
-let rec solve credit indexed_prices n =
+let rec solve credit indexed_prices sri =
   match indexed_prices with
-  | [] -> (n, None) (* no solution *)
-  | ihp :: rest ->
-    let (fidx, hp) = ihp in
-    let result = List.drop_while rest ~f:(fun (_, p) -> (p + hp) <> credit) in
+  | [] -> (sri, None) (* no solution *)
+  (* is the price at the head of the list part of the solution ?? *)
+  | (hd_i, hd_v) :: t ->
+    let result = List.drop_while t ~f:(fun (_, v) -> (v + hd_v) <> credit) in
     match result with
-    | [] -> solve credit rest n (* no results *)
-    | (* matching price found *)
-      (sidx, _) :: _  -> (n, Some (fidx, sidx))
+    | [] -> solve credit t sri (* head of list not part of the solution *)
+    | (i, _) :: _  -> (sri, Some (hd_i, i)) (* matching price found *)
 
 
 (** Turns a string with prices into a list of prices (converted to integers).
@@ -46,12 +45,12 @@ let format_result = function
 
 (** Process a "Store Credit" record and print the result to stdout.
    @param lines 3 lines comprising a "Store Credit" record
-   @param n 1-based record index (needed for the result string)
+   @param sri 1-based store record index (needed for the result string)
  *)
-let process_block lines n =
+let process_block lines sri =
   match lines with
   | [] | [_] | [_; _] -> raise (Failure "Block shorter than 3 lines")
   | l1 :: _ :: l3 :: _ ->
     let credit = Int.of_string l1 in
     let prices = indexed_prices l3 in
-    format_result (solve credit prices n)
+    format_result (solve credit prices sri)
