@@ -45,16 +45,12 @@ let format_result = function
   | (i1, Some (i2, i3)) -> sprintf "Case #%d: %d %d" i1 i2 i3
 
 
-let process_block' lines n =
-  let l1 :: _ :: l3 :: [] = lines in
-  let credit = Int.of_string l1 in
-  let prices = indexed_prices l3 in
-  let result = solve credit prices n in
-  format_result result
-
-
 (** Process a "Store Credit" record and print the result to stdout.
    @param lines 3 lines comprising a "Store Credit" record
    @param n 1-based record index (needed for the result string)
  *)
-let process_block lines n = print_endline (process_block' lines n)
+let process_block lines n =
+  let l1 :: _ :: l3 :: [] = lines in
+  let credit = Int.of_string l1 in
+  let prices = indexed_prices l3 in
+  format_result (solve credit prices n)

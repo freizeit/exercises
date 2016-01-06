@@ -70,15 +70,15 @@ let test_format_result_Some _ctxt =
   assert_equal ~printer:(fun x -> x) "Case #8: 6 7" result
 
 
-let test_process_block'_short _ctxt =
+let test_process_block_short _ctxt =
   let lines = ["10"; "3"; "1 7 9"] in
-  let result = Logic.process_block' lines 18 in
+  let result = Logic.process_block lines 18 in
   assert_equal ~printer:(fun x -> x) "Case #18: 1 3" result
 
 
-let test_process_block'_no_solution _ctxt =
+let test_process_block_no_solution _ctxt =
   let lines = ["15"; "4"; "2 1 7 9"] in
-  let result = Logic.process_block' lines 19 in
+  let result = Logic.process_block lines 19 in
   assert_equal ~printer:(fun x -> x) "Case #19: no solution found" result
 
 
@@ -88,8 +88,8 @@ let suite =
    "happy case: empty file">:: test_empty_file;
    "failure: incomplete 4-line block">:: test_incomplete_block;
    "failure: invalid block length">:: test_invalid_block_length;
-   "format_process_block' with no solution">:: test_process_block'_no_solution;
-   "format_process_block' with 1 7 9">:: test_process_block'_short;
+   "format_process_block' with no solution">:: test_process_block_no_solution;
+   "format_process_block' with 1 7 9">:: test_process_block_short;
    "format_result with None">:: test_format_result_None;
    "format_result with Some">:: test_format_result_Some;
    "indexed_prices with len 2">:: test_indexed_prices_len_2;

@@ -48,7 +48,7 @@ let rec process_lines' file n =
   if block = [] then
     ()
   else begin
-    Logic.process_block block n;
+    print_endline (Logic.process_block block n);
     (* Keep going until we consume all of the input file *)
     process_lines' file (n + 1)
   end
