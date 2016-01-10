@@ -1,60 +1,58 @@
+(*
+	A program solving
+
+		http://code.google.com/codejam/contest/dashboard?c=351101#s=p0
+
+  A store issues a credit to a customer and the latter would like to spend
+  all of it in a single purchase by finding 2 store items so that the sum of
+  their prices exactly matches the credit.
+
+	The test cases are contained in a file whose path is to be specified on
+	the command line.
+
+	Example:
+
+		./pmain.native ../A-large-practice.in
+
+	This will process the test cases contained in the '../A-large-practice.in'
+	file.
+*)
+
+
 open Core.Std
 open Async.Std
 open Rpc_parallel.Std
 
-module Add_numbers_map_function = Map_reduce.Make_map_function(struct
+module Store_credit_map_function = Map_reduce.Make_map_function(struct
   module Input = struct
-    type t = int * int with bin_io
+    type t = int * string list with bin_io
   end
   module Output = struct
-    type t = int * int with bin_io
+    type t = string with bin_io
   end
 
-  let rec spin ntimes =
-    match ntimes with
-    | 0 -> ()
-    | _ -> spin (ntimes - 1)
-
-  let map (index, max) =
-    spin 100000000; (* Waste some CPU time *)
-    return (index, (List.fold ~init:0 ~f:(+) (List.init max ~f:Fn.id)))
+  let map (index, block) = return (Logic.process_block block index)
 end)
 
 let command =
-  Command.async ~summary:"Add numbers in parallel"
+  Command.async ~summary:"Solves the 'store credit' code jam practice problem in parallel"
     Command.Spec.(
       empty
-      +> flag "max" (required int) ~doc:" Number to add up to"
-      +> flag "ntimes" (optional_with_default 1000 int)
-           ~doc:" Number of times to repeat the operation"
+      +> flag "path" (required string) ~doc:" Path to the data file"
       +> flag "nworkers" (optional_with_default 4 int) ~doc:" Number of workers"
-      +> flag "ordered" (optional_with_default true bool) ~doc:" Ordered or unordered"
     )
-    (fun max ntimes nworkers ordered () ->
+    (fun path nworkers () ->
        let list = (Pipe.of_list (List.init ntimes ~f:(fun i -> (i, max)))) in
-       if ordered then
-         (Map_reduce.map
-            (Map_reduce.Config.create ~local:nworkers ())
-            list
-            ~m:(module Add_numbers_map_function)
-            ~param:()
-          >>= fun output_reader ->
-          Pipe.iter output_reader ~f:(fun (index, sum) ->
-            printf "%i: %i\n" index sum;
-            Deferred.unit
-          ))
-       else
-         (Map_reduce.map_unordered
-            (Map_reduce.Config.create ~local:nworkers ())
-            list
-            ~m:(module Add_numbers_map_function)
-            ~param:()
-          >>= fun output_reader ->
-          Pipe.iter output_reader ~f:(fun ((index, sum), mf_index) ->
-            assert (index = mf_index);
-            printf "%i:%i: %i\n" mf_index index sum;
-            Deferred.unit
-          ))
+       (Map_reduce.map
+          (Map_reduce.Config.create ~local:nworkers ())
+          list
+          ~m:(module Store_credit_map_function)
+          ~param:()
+        >>= fun output_reader ->
+        Pipe.iter output_reader ~f:(fun (index, sum) ->
+          printf "%i: %i\n" index sum;
+          Deferred.unit
+        ))
     )
 
 let () = Parallel.start_app command
