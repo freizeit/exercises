@@ -3,9 +3,9 @@
 open Core.Std
 
 
-(** Open a "Store Credit" file and write 2-tuples to the `writer` where the
-   first tuple element is a 1-based index and the second is a string (a block
-   of 3 lines (that defines a single "Store Credit" problem)).
+(** Open the "Store Credit" file with the given path and return a list of
+   2-tuples where the first tuple element is a 1-based index and the second
+   is a 3-long string list that defines a single "Store Credit" problem.
    @param path path of the "Store Credit" file to be processed
  *)
 let get_blocks path =
@@ -18,7 +18,6 @@ let get_blocks path =
       match tl with
         | [] -> [(idx, hd)]
         | _ -> (idx, hd) :: loop (idx+1) tl
-    in let tls = List.map lines ~f:String.strip
     in loop 1 (List.map lines ~f:String.strip)
 
 
