@@ -47,7 +47,7 @@ let format_result = function
    @param lines 3 lines comprising a "Store Credit" record
    @param sri 1-based store record index (needed for the result string)
  *)
-let process_block lines sri =
+let process_block (sri, lines) =
   match lines with
   | [] | [_] | [_; _] -> raise (Failure "Block shorter than 3 lines")
   | l1 :: _ :: l3 :: _ ->
