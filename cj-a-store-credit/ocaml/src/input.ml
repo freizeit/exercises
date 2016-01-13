@@ -69,3 +69,22 @@ let process_file path () =
     let _ = In_channel.input_line file in
     process_lines file
   )
+
+
+(** Open a "Store Credit" file and write 2-tuples to the `writer` where the
+   first tuple element is a 1-based index and the second is a string (a block
+   of 3 lines (that defines a single "Store Credit" problem)).
+   @param path path of the "Store Credit" file to be processed
+ *)
+let get_blocks path =
+  let lines = List.drop (In_channel.read_lines path) 1 in
+  if ((List.length lines) % 3 <> 0) then
+    failwith "Malformed input file"
+  else
+    let rec loop idx ls =
+      let (hd, tl) = List.split_n ls 3 in
+      match tl with
+        | [] -> [(idx, hd)]
+        | _ -> (idx, hd) :: loop (idx+1) tl
+    in let tls = List.map lines ~f:String.strip
+    in loop 1 (List.map lines ~f:String.strip)

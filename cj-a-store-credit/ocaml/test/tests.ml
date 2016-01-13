@@ -44,6 +44,28 @@ let test_invalid_block_length _ctxt =
   )
 
 
+let test_get_blocks_happy_case _ctxt =
+  let path = wtf _ctxt "3
+    100
+    3
+    5 75 25
+    200
+    7
+    150 24 79 50 88 345 3
+    8
+    8
+    2 1 9 4 4 56 90 3" in
+  let bs = Input.get_blocks path in
+  assert_equal [(1, ["100";"3";"5 75 25"]);(2, ["200";"7";"150 24 79 50 88 345 3"]);(3, ["8";"8";"2 1 9 4 4 56 90 3"])] bs
+
+
+let test_get_blocks_malformed_file _ctxt =
+  let path = wtf _ctxt "3
+    100
+    3" in
+  assert_raises (Failure "Malformed input file") (fun _ -> Input.get_blocks path)
+
+
 (* Logic function tests *)
 let test_indexed_prices_len_2 _ctxt =
   let result = Logic.indexed_prices "111 112" in
@@ -105,6 +127,8 @@ let suite =
    "process_block with no lines">:: test_process_block_no_lines;
    "process_block with 1 line">:: test_process_block_1_line;
    "process_block with 2 lines">:: test_process_block_2_lines;
+   "get_blocks, happy case">:: test_get_blocks_happy_case;
+   "get_blocks, malformed input file">:: test_get_blocks_malformed_file;
    "format_result with None">:: test_format_result_None;
    "format_result with Some">:: test_format_result_Some;
    "indexed_prices with len 2">:: test_indexed_prices_len_2;
