@@ -20,6 +20,7 @@ SourceRepository master
 Executable "scs"
   Path: src
   MainIs: main.ml
+  CompiledObject: best
   BuildDepends: core, threads
 
 Library "lib_scs"
