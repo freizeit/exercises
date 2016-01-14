@@ -31,7 +31,7 @@ module Store_credit_map_function = Map_reduce.Make_map_function(struct
     type t = string with bin_io
   end
 
-  let map (index, block) = return (Logic.process_block block index)
+  let map b = return (Logic.process_block b)
 end)
 
 let command =
@@ -42,15 +42,15 @@ let command =
       +> flag "nworkers" (optional_with_default 4 int) ~doc:" Number of workers"
     )
     (fun path nworkers () ->
-       let list = (Pipe.of_list (List.init ntimes ~f:(fun i -> (i, max)))) in
+       let blocks = (Pipe.of_list (Input.get_blocks path)) in
        (Map_reduce.map
           (Map_reduce.Config.create ~local:nworkers ())
-          list
+          blocks
           ~m:(module Store_credit_map_function)
           ~param:()
         >>= fun output_reader ->
-        Pipe.iter output_reader ~f:(fun (index, sum) ->
-          printf "%i: %i\n" index sum;
+        Pipe.iter output_reader ~f:(fun solution ->
+          print_endline solution;
           Deferred.unit
         ))
     )

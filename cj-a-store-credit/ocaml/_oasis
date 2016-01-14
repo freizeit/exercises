@@ -24,7 +24,7 @@ Executable "scs"
 
 Library "lib_scs"
   Path: src
-  Modules: Main, Logic, Input
+  Modules: Logic, Input
 
 Executable "test_scs"
   Path: test
@@ -39,3 +39,9 @@ Test "test_scs"
   TestTools: test_scs
   Command: $test_scs
   WorkingDirectory: test
+
+Executable "pscs"
+  Path: src
+  MainIs: pmain.ml
+  CompiledObject: best
+  BuildDepends: core, threads, rpc_parallel, bin_prot, bin_prot.syntax
