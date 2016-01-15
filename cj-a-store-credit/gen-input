@@ -1,4 +1,4 @@
 #!/bin/bash
 
-echo "50000"  > A-50k.in
-((midx = 1)); while ((midx <= 1000)); do cat A-large-practice-multi.in >> A-50k.in; ((midx += 1)); done
+echo "200000"  > A-200k.in
+((midx = 1)); while ((midx <= 4000)); do cat A-large-practice-multi.in >> A-200k.in; ((midx += 1)); done

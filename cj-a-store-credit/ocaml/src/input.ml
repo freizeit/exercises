@@ -8,7 +8,7 @@ open Core.Std
    is a 3-long string list that defines a single "Store Credit" problem.
    @param path path of the "Store Credit" file to be processed
  *)
-let get_blocks path =
+let get_blocks (path:string) =
   let lines = List.drop (In_channel.read_lines path) 1 in
   if ((List.length lines) % 3 <> 0) then
     failwith "Malformed input file"
@@ -24,6 +24,6 @@ let get_blocks path =
 (** Open a "Store Credit" file and make sure all records are processed
    @param path path of the "Store Credit" file to be processed
  *)
-let process_file path () =
+let process_file (path:string) () =
   get_blocks path
   |> List.iter ~f:(fun b -> print_endline (Logic.process_block b))

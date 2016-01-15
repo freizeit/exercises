@@ -17,7 +17,7 @@ open Core.Std
     found or Some (pi1, pi2) where pi1 and pi2 are the indices of the prices
     found.
  *)
-let rec solve credit indexed_prices sri =
+let rec solve (credit:int) (indexed_prices:(int * int) list) (sri:int) =
   match indexed_prices with
   | [] -> (sri, None) (* no solution *)
   (* is the price at the head of the list part of the solution ?? *)
@@ -33,7 +33,7 @@ let rec solve credit indexed_prices sri =
    @return list of Int 2-tuples where each tuple holds the following data:
      (1-based price index, price)
  *)
-let indexed_prices l3 =
+let indexed_prices (l3:string) =
   let prices = List.map ~f:Int.of_string (String.split ~on:' ' l3) in
   List.zip_exn (List.range 1 (List.length prices + 1)) prices
 
@@ -47,7 +47,7 @@ let format_result = function
    @param lines 3 lines comprising a "Store Credit" record
    @param sri 1-based store record index (needed for the result string)
  *)
-let process_block (sri, lines) =
+let process_block ((sri:int), (lines:string list)) =
   match lines with
   | [] | [_] | [_; _] -> raise (Failure "Block shorter than 3 lines")
   | l1 :: _ :: l3 :: _ ->
