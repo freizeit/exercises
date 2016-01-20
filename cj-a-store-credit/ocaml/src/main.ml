@@ -12,7 +12,7 @@
 
 	Example:
 
-		./main.native ../A-large-practice.in
+		./main.native -path ../A-large-practice.in
 
 	This will process the test cases contained in the '../A-large-practice.in'
 	file.
@@ -26,7 +26,12 @@ let command =
   Command.basic
     ~summary:"Solves the 'store credit' code jam practice problem"
     ~readme:(fun () -> "More detailed information")
-    Command.Spec.(empty +> anon ("filename" %: string))
+    Command.Spec.(
+      empty
+      +> flag "path" (required string) ~doc:" Path to the data file"
+      +> flag "first" (optional_with_default (-1) int) ~doc:" Index of first problem"
+      +> flag "last" (optional_with_default (-1) int) ~doc:" Index of last problem"
+    )
     Input.process_file
 
 

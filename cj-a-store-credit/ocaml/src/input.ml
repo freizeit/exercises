@@ -24,6 +24,6 @@ let get_blocks (path:string) =
 (** Open a "Store Credit" file and make sure all records are processed
    @param path path of the "Store Credit" file to be processed
  *)
-let process_file (path:string) () =
+let process_file (path:string) (first:int) (last:int) () =
   get_blocks path
   |> List.iter ~f:(fun b -> print_endline (Logic.process_block b))
